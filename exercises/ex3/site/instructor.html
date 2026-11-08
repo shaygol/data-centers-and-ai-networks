@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Miswire Hunt &middot; Instructors</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-in">
+    <span class="brand"><i class="led"></i>JR-16 <small>instructor view</small></span>
+    <div class="status-strip" id="strip">
+      <div><span class="k">Joined</span><span class="v" id="iSeats">&ndash;</span></div>
+      <div><span class="k">Reported</span><span class="v" id="iRep">&ndash;</span></div>
+      <div><span class="k">Faults</span><span class="v" id="iFaults">&ndash;</span></div>
+      <div><span class="k">Wrong labels</span><span class="v" id="iWrong">&ndash;</span></div>
+      <div class="fabric"><span class="k">Fabric</span><span class="v" id="sFabric">&ndash;</span></div>
+    </div>
+  </div>
+</div>
+<main>
+  <section class="card" id="keyCard">
+    <form id="keyForm" class="join">
+      <label for="ikey">Instructor key</label>
+      <input id="ikey" type="password" required autocomplete="off">
+      <button class="btn primary" type="submit">Open</button>
+    </form>
+    <p class="err" id="keyErr" hidden></p>
+  </section>
+
+  <section class="card" id="mapCard" hidden>
+    <div class="console-head">
+      <div><h2>Fabric map with the answer key</h2><p class="fine">Dotted red links are faults nobody has confirmed yet. Students never see them.</p></div>
+      <label class="fine"><input type="checkbox" id="showKey" checked> Show answer key</label>
+    </div>
+    <div class="map-wrap"><svg id="map" viewBox="0 0 960 400" role="img" aria-label="Fabric map with answer key"></svg></div>
+    <ul class="legend">
+      <li><i class="lg lg-unknown"></i>No report</li><li><i class="lg lg-verified"></i>Both ends OK</li>
+      <li><i class="lg lg-suspect"></i>Flagged</li><li><i class="lg lg-confirmed"></i>Confirmed fault</li>
+    </ul>
+    <div id="faultList" class="faults"></div>
+  </section>
+
+  <section class="card" id="rcCard" hidden>
+    <h2>Root-cause answers</h2>
+    <div class="instr-grid">
+      <div><h3>Q1: the T7 ports</h3><div class="bars" id="q1"></div></div>
+      <div><h3>Q2: SP3 p6</h3><div class="bars" id="q2"></div></div>
+    </div>
+  </section>
+
+  <section class="card" id="seatCard" hidden>
+    <h2>Students per switch</h2>
+    <p class="fine" id="seatMap"></p>
+    <div class="row">
+      <button class="btn ghost" id="resetBtn" type="button">Reset the game</button>
+      <button class="btn primary" id="resetYes" type="button" hidden>Yes, delete all seats, reports and answers</button>
+      <button class="btn ghost" id="resetNo" type="button" hidden>Cancel</button>
+      <span class="fine" id="resetMsg"></span>
+    </div>
+  </section>
+</main>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/topology.js"></script>
+<script src="js/map.js"></script>
+<script src="js/instructor.js"></script>
+</body>
+</html>

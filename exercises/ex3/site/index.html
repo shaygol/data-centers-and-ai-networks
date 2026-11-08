@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Miswire Hunt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-in">
+    <span class="brand"><i class="led"></i>JR-16 <small>fabric bring-up</small></span>
+    <div class="status-strip" id="strip">
+      <div><span class="k">Faults confirmed</span><span class="v" id="sFaults">&ndash;</span></div>
+      <div><span class="k">Switches reported</span><span class="v" id="sReported">&ndash;</span></div>
+      <div class="fabric"><span class="k">Fabric</span><span class="v" id="sFabric">&ndash;</span></div>
+    </div>
+  </div>
+</div>
+<main>
+  <header class="hero">
+    <p class="eyebrow">Data Centers &amp; AI Networks &middot; Unit 3 &middot; Jupiter Rising</p>
+    <h1>Miswire<br>Hunt</h1>
+    <p class="lede">Sixteen switches. Five hidden cabling problems. Nobody can route until they are found. <b>Each of you is one switch</b> and sees only your own ports, so the only way to bring the fabric up is to compare notes.</p>
+    <ol class="steps">
+      <li><b>Join</b><span>Enter your email, get a switch.</span></li>
+      <li><b>Label</b><span>Check every port against the plan.</span></li>
+      <li><b>Report</b><span>Your labels light up the shared map.</span></li>
+      <li><b>Explain</b><span>Two root-cause questions.</span></li>
+    </ol>
+    <details class="why">
+      <summary>Why this matters in Jupiter</summary>
+      <p>&ldquo;Building a fabric with thousands of cables invariably leads to multiple cabling errors.&rdquo; Google's answer was <b>Neighbor Discovery (ND)</b>. Every switch is loaded with the same <b>cluster config</b>, so it knows which peer port should sit at the far end of each cable. ND checks what is really there and exchanges what it found with the peer. A port is declared up to the routing process only if it is both <b>PHY up</b> and <b>ND up</b>. <span class="ref">(Section 5.2.1)</span></p>
+      <p>A problem counts as <b>confirmed</b> once switches on two different sides of it have labeled their ports correctly. When all five are confirmed, the fabric comes up.</p>
+    </details>
+  </header>
+
+  <section class="card" id="joinCard">
+    <h2>Get your switch</h2>
+    <form id="joinForm" class="join">
+      <label for="email">Email</label>
+      <input id="email" type="email" required autocomplete="email" placeholder="you@example.com">
+      <button class="btn primary" type="submit">Take my switch</button>
+    </form>
+    <p class="fine">We store only a one-way hash of your email, so the same email always gets the same switch. No password, no grade.</p>
+    <p class="err" id="joinErr" hidden></p>
+  </section>
+
+  <section class="card" id="consoleCard" hidden>
+    <div class="console-head">
+      <div>
+        <p class="eyebrow">Your switch</p>
+        <h2 class="sw-name" id="swName">&ndash;</h2>
+        <p class="fine" id="swRole"></p>
+      </div>
+      <button class="btn ghost" id="switchUser" type="button">Not you? Use another email</button>
+    </div>
+
+    <div id="darkPanel" class="dark" hidden>
+      <p class="mono">&gt; ssh admin@T7.cpn<br>&gt; connection timed out<br>&gt; ping T7.cpn: 100% packet loss</p>
+      <p>Your switch does not answer on the control plane network, so you have no port table. Your job: use the shared map to work out what happened to <b>T7</b>, and answer the two questions below.</p>
+    </div>
+
+    <div id="tablePanel">
+      <details class="guide" open>
+        <summary>How to read your table</summary>
+        <dl>
+          <dt>Expected peer</dt><dd>Who the cluster config says is at the other end.</dd>
+          <dt>Discovered peer</dt><dd>Who ND actually hears on this port. <code>-</code> means nothing is heard.</dd>
+          <dt>Peer hears you</dt><dd>ND messages also carry the sender's own discovered peer, so you learn whether the peer hears you. <code>unknown</code> when you hear nothing from it.</dd>
+          <dt>PHY</dt><dd>Physical link status: is there a working cable at all?</dd>
+          <dt>Error rate</dt><dd>ND's link error signal.</dd>
+        </dl>
+        <p class="fine">Labels: <b>OK</b> &middot; <b>Miswired</b> (a different peer than expected) &middot; <b>One-way</b> (only one direction works) &middot; <b>High errors</b> &middot; <b>Link down</b> (PHY down) &middot; <b>Peer silent</b> (PHY up, but no ND from the peer).</p>
+      </details>
+      <div class="tbl-wrap">
+        <table class="ports">
+          <thead><tr><th>Port</th><th>Expected peer</th><th>Discovered peer</th><th>Peer hears you</th><th>PHY</th><th>Error rate</th><th>Your label</th></tr></thead>
+          <tbody id="portRows"></tbody>
+        </table>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="sendReport" type="button">Send report</button>
+        <span class="fine" id="reportMsg"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="mapCard">
+    <div class="console-head">
+      <div><h2>Shared fabric map</h2><p class="fine">Built from everyone's reports. Hover a link to see what each end said. Refreshes every few seconds.</p></div>
+      <button class="btn ghost" id="refresh" type="button">Refresh</button>
+    </div>
+    <div class="map-wrap"><svg id="map" viewBox="0 0 960 400" role="img" aria-label="Shared map of the JR-16 fabric"></svg></div>
+    <ul class="legend">
+      <li><i class="lg lg-unknown"></i>No report yet</li>
+      <li><i class="lg lg-half"></i>One end says OK</li>
+      <li><i class="lg lg-verified"></i>Both ends say OK</li>
+      <li><i class="lg lg-suspect"></i>Someone flagged a problem</li>
+      <li><i class="lg lg-confirmed"></i>Confirmed fault</li>
+    </ul>
+    <div id="faultList" class="faults"></div>
+    <p class="err" id="mapErr" hidden></p>
+  </section>
+
+  <section class="card" id="rcCard" hidden>
+    <h2>Root cause</h2>
+    <p class="fine" id="rcLock">Send your report first, then come back here. You will need the shared map.</p>
+    <form id="rcForm" hidden>
+      <fieldset>
+        <legend>1. On AG3 and AG4, every port that faces <b>T7</b> shows PHY up but hears no ND. What happened?</legend>
+        <label><input type="radio" name="q1" value="cables"> Four separate cable faults</label>
+        <label><input type="radio" name="q1" value="power"> T7 lost power</label>
+        <label><input type="radio" name="q1" value="crash"> T7's switch software crashed</label>
+        <label><input type="radio" name="q1" value="miswire"> T7's cables were plugged into the wrong ports</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. <b>SP3 p6</b> shows PHY up but hears no ND from AG3 u6. What is the most likely cause?</legend>
+        <label><input type="radio" name="q2" value="crash"> AG3's software crashed</label>
+        <label><input type="radio" name="q2" value="oneway"> The link works in one direction only</label>
+        <label><input type="radio" name="q2" value="miswire"> The cable goes to a different switch</label>
+        <label><input type="radio" name="q2" value="down"> The cable is unplugged</label>
+      </fieldset>
+      <div class="row"><button class="btn primary" type="submit">Save my answers</button><span class="fine" id="rcMsg"></span></div>
+    </form>
+  </section>
+
+  <footer class="fine">Based on A. Singh et al., &ldquo;Jupiter Rising: A Decade of Clos Topologies and Centralized Control in Google's Datacenter Network&rdquo;, SIGCOMM 2015, Sections 5.2.1 and 5.3. The JR-16 fabric and its faults are made up for this exercise.</footer>
+</main>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/topology.js"></script>
+<script src="js/map.js"></script>
+<script src="js/student.js"></script>
+</body>
+</html>
