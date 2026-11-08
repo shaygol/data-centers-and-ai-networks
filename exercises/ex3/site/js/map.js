@@ -39,6 +39,7 @@
       const cls = ["nd", tor ? "nd-tor" : s.startsWith("AG") ? "nd-ag" : "nd-sp"];
       if (o.reported && o.reported.has(s)) cls.push("nd-reported");
       if (o.me === s) cls.push("nd-me");
+      if (o.flash && o.flash.has(s)) cls.push("nd-flash");
       h += '<g class="' + cls.join(" ") + '"><rect x="' + (x - w / 2) + '" y="' + (y - hh / 2) + '" width="' + w + '" height="' + hh + '" rx="5"/>' +
         '<text x="' + x + '" y="' + (y + 4.5) + '" text-anchor="middle">' + s + "</text>" +
         (o.me === s ? '<text class="you" x="' + x + '" y="' + (y + (tor ? 30 : 34)) + '" text-anchor="middle">\u25B2 YOU</text>' : "") + "</g>";

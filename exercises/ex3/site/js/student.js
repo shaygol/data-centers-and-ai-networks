@@ -4,7 +4,7 @@
   const { render, fromStatus, LABELS, esc } = window.MH_MAP;
   const KEY = "mh-hash";
   let me = null;        // { hash, switch, rows, mine, answers }
-  let lastStatus = null;
+  let lastStatus = null, prevPorts = null, prevConfirmed = null, flash = new Set(), feed = [];
 
   function showErr(el, msg) { el.textContent = msg; el.hidden = !msg; }
 
@@ -32,7 +32,8 @@
   async function loadMe(hash) {
     const v = await rpc("get_my_view", { p_hash: hash });
     if (!v) { store.del(KEY); $("joinCard").hidden = false; return; }
-    me = { hash, switch: v.switch, rows: v.rows || [], mine: v.mine || {}, answers: v.answers };
+    me = { hash, switch: v.switch, rows: v.rows || [], mine: v.mine || {}, labels: Object.assign({}, v.mine || {}), sent: Object.keys(v.mine || {}).length > 0, answers: v.answers };
+    selPort = null; selLabel = null;
     $("joinCard").hidden = true;
     $("consoleCard").hidden = false;
     $("rcCard").hidden = false;
@@ -41,33 +42,92 @@
     const dark = me.rows.length === 0;
     $("darkPanel").hidden = !dark;
     $("tablePanel").hidden = dark;
-    renderRows();
+    renderPanel();
+    if (me.rows.length) { selPort = me.rows[0].port; renderPanel(); renderProbe(selPort); }
     renderRc();
     drawMap();
   }
 
-  // ---------- port table ----------
-  function renderRows() {
-    const opts = l => '<option value="">Choose…</option>' + Object.keys(LABELS).map(k => '<option value="' + k + '"' + (k === l ? " selected" : "") + ">" + LABELS[k] + "</option>").join("");
-    $("portRows").innerHTML = me.rows.map(r => {
-      const id = "lbl-" + r.port;
-      return "<tr><th scope=\"row\">" + esc(r.port) + "</th><td>" + esc(r.expected) + "</td><td>" + esc(r.discovered) + "</td><td>" + esc(r.peer_hears) +
-        '</td><td class="' + (r.phy === "DOWN" ? "bad" : "") + '">' + esc(r.phy) + "</td><td>" + esc(r.err) + '</td><td><select id="' + id + '" data-port="' + esc(r.port) + '" aria-label="Label for ' + esc(r.port) + '">' + opts(me.mine[r.port]) + "</select></td></tr>";
+  // ---------- front panel ----------
+  const LCOL = { OK: "var(--ok)", MISWIRED: "var(--bad)", ONE_WAY: "#FF8C42", HIGH_ERRORS: "var(--warn)", LINK_DOWN: "#9AA7B2", PEER_SILENT: "#B58CFF" };
+  const HINT = { OK: "Plan and reality agree, both directions", MISWIRED: "A different peer than the plan", ONE_WAY: "Only one direction works", HIGH_ERRORS: "Up and correct, but error rate is high", LINK_DOWN: "PHY down: no working cable", PEER_SILENT: "PHY up but no ND from the peer" };
+  let selLabel = null, selPort = null;
+  const rowOf = p => me.rows.filter(r => r.port === p)[0];
+
+  function renderPanel() {
+    $("face").innerHTML = me.rows.map(r => {
+      const l = me.labels[r.port];
+      return '<button type="button" class="jack' + (selPort === r.port ? " sel" : "") + '" data-port="' + esc(r.port) + '" aria-label="Port ' + esc(r.port) + (l ? ", labeled " + LABELS[l] : ", not labeled") + '">' +
+        '<span class="led" style="background:' + (l ? LCOL[l] : "var(--idle)") + ";box-shadow:0 0 8px " + (l ? LCOL[l] : "transparent") + '"></span>' +
+        '<span class="sock"></span><span class="pn">' + esc(r.port) + '</span><span class="pl">' + (l ? LABELS[l] : "\u2014") + "</span></button>";
     }).join("");
-    $("reportMsg").textContent = Object.keys(me.mine).length ? "Report on file. You can change labels and send again." : "";
+    $("tray").innerHTML = Object.keys(LABELS).map(k => '<span role="button" tabindex="0" class="tag' + (selLabel === k ? " sel" : "") + '" draggable="true" data-label="' + k + '" aria-pressed="' + (selLabel === k) + '" title="' + HINT[k] + '" style="--tc:' + LCOL[k] + '"><i></i>' + LABELS[k] + "</span>").join("");
+    const n = me.rows.length, done = Object.keys(me.labels).length;
+    $("sendReport").disabled = !n;
+    $("reportMsg").textContent = done === n ? (me.sent ? "Report on file. You can change labels and send again." : "All ports labeled. Send your report.") : done + " of " + n + " ports labeled.";
+    renderTable();
+  }
+
+  function renderTable() {
+    $("portRows").innerHTML = me.rows.map(r => "<tr><th scope=\"row\">" + esc(r.port) + "</th><td>" + esc(r.expected) + "</td><td>" + esc(r.discovered) + "</td><td>" + esc(r.peer_hears) +
+      '</td><td class="' + (r.phy === "DOWN" ? "bad" : "") + '">' + esc(r.phy) + "</td><td>" + esc(r.err) + "</td><td>" + (me.labels[r.port] ? LABELS[me.labels[r.port]] : "\u2014") + "</td></tr>").join("");
+  }
+
+  function setLabel(port, label) { me.labels[port] = label; renderPanel(); if (selPort === port) renderProbe(port); }
+
+  $("face").addEventListener("click", e => {
+    const j = e.target.closest("[data-port]"); if (!j) return;
+    const port = j.getAttribute("data-port");
+    if (selLabel && selPort === port) { setLabel(port, selLabel); return; }
+    selPort = port; renderPanel(); renderProbe(port);
+    if (selLabel) setLabel(port, selLabel);
+  });
+  $("face").addEventListener("dragover", e => { if (e.target.closest("[data-port]")) e.preventDefault(); });
+  $("face").addEventListener("drop", e => {
+    const j = e.target.closest("[data-port]"); if (!j) return; e.preventDefault();
+    const l = e.dataTransfer.getData("text/plain"); if (!LABELS[l]) return;
+    selPort = j.getAttribute("data-port"); setLabel(selPort, l); renderProbe(selPort);
+  });
+  $("tray").addEventListener("click", e => { const t = e.target.closest("[data-label]"); if (!t) return; selLabel = selLabel === t.dataset.label ? null : t.dataset.label; renderPanel(); });
+  $("tray").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.closest("[data-label]")) { e.preventDefault(); e.target.closest("[data-label]").click(); } });
+  $("tray").addEventListener("dragstart", e => { const t = e.target.closest("[data-label]"); if (t) e.dataTransfer.setData("text/plain", t.dataset.label); });
+
+  // The probe: plan on the right in dashes, reality in solid, an ND pulse running along the cable.
+  function renderProbe(port) {
+    const r = rowOf(port), svg = $("probe"); if (!r) return;
+    const down = r.phy === "DOWN", silent = r.discovered === "-", match = !silent && r.discovered === r.expected, hi = r.err !== "<1e-12";
+    const node = (x, y, w, t1, t2, cls) => '<g class="pn-box ' + cls + '"><rect x="' + x + '" y="' + y + '" width="' + w + '" height="44" rx="6"/><text x="' + (x + w / 2) + '" y="' + (y + 19) + '" text-anchor="middle" class="t1">' + t1 + '</text><text x="' + (x + w / 2) + '" y="' + (y + 35) + '" text-anchor="middle" class="t2">' + t2 + "</text></g>";
+    let h = "", cableEnd = 330;
+    h += node(14, 78, 108, me.switch + " " + port, "you", "me");
+    const realY = match ? 100 : 150, yEnd = down ? 100 : realY;
+    // plan (dashed ghost)
+    if (!match) h += '<polyline class="plan" points="122,100 300,100 350,44 380,44"/>' + node(380, 22, 126, r.expected, "plan says", "ghost");
+    // reality
+    const pts = down ? "122,100 250,100" : (match ? "122,100 380,100" : "122,100 300,100 350,150 380,150");
+    h += '<polyline class="cable ' + (hi ? "noisy" : "") + (down ? " cut" : "") + '" id="cab" points="' + pts + '"/>';
+    if (down) h += '<text x="262" y="106" class="cross">\u2715</text><text x="262" y="132" text-anchor="middle" class="hint">no cable (PHY down)</text>';
+    else if (match) h += node(380, 78, 126, r.discovered, "matches plan", "peer ok");
+    else if (silent) h += node(380, 128, 126, "?", "silence", "peer none");
+    else h += node(380, 128, 126, r.discovered, "ND heard", "peer bad");
+    if (!down && !silent) h += '<circle r="5" class="pulse"><animateMotion dur="1.6s" repeatCount="indefinite" path="' + (match ? "M122,100 L380,100" : "M122,100 L300,100 L350,150 L380,150") + '" keyPoints="1;0" keyTimes="0;1" calcMode="linear"/></circle>';
+    // return direction
+    if (!down) h += '<text x="200" y="' + (match ? 128 : 84) + '" text-anchor="middle" class="ret ' + (r.peer_hears === "yes" ? "yes" : r.peer_hears === "no" ? "no" : "unk") + '">peer hears you: ' + esc(r.peer_hears) + "</text>";
+    h += '<text x="200" y="' + (match ? 144 : 176) + '" text-anchor="middle" class="err ' + (hi ? "hi" : "") + '">error rate ' + esc(r.err) + "</text>";
+    svg.innerHTML = h;
+    $("probeText").textContent = "Port " + port + ": plan " + r.expected + ", heard " + (silent ? "nothing" : r.discovered) + ", PHY " + r.phy + ", peer hears you: " + r.peer_hears + ", errors " + r.err + ".";
   }
 
   $("sendReport").addEventListener("click", async () => {
-    const labels = {}; let missing = 0;
-    document.querySelectorAll("#portRows select").forEach(s => { if (s.value) labels[s.dataset.port] = s.value; else missing++; });
-    if (missing) { $("reportMsg").textContent = missing + " port" + (missing > 1 ? "s" : "") + " still need a label."; return; }
+    const n = me.rows.length, done = Object.keys(me.labels).length;
+    if (done < n) { $("reportMsg").textContent = (n - done) + " port" + (n - done > 1 ? "s" : "") + " still need a label."; return; }
     $("sendReport").disabled = true;
     try {
-      const n = await rpc("submit_report", { p_hash: me.hash, p_labels: labels });
-      me.mine = labels;
-      $("reportMsg").textContent = "Sent: " + n + " ports. Look at the map below.";
-      renderRc();
+      const sent = await rpc("submit_report", { p_hash: me.hash, p_labels: me.labels });
+      me.sent = true; me.mine = Object.assign({}, me.labels);
+      $("reportMsg").textContent = "Sent: " + sent + " ports. Watch the map below.";
+      renderPanel(); renderRc();
       await refresh();
+      $("mapCard").scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (err) { $("reportMsg").textContent = err.message; }
     $("sendReport").disabled = false;
   });
@@ -96,7 +156,36 @@
   // ---------- shared map ----------
   function drawMap() {
     const base = lastStatus ? fromStatus(lastStatus) : { latest: {}, reported: new Set(), confirmed: new Set() };
-    render($("map"), Object.assign(base, { me: me && me.switch }));
+    render($("map"), Object.assign(base, { me: me && me.switch, flash }));
+  }
+
+  function toast(msg) {
+    const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.h);
+    toast.h = setTimeout(() => { t.hidden = true; }, 5000);
+  }
+  function hhmm() { const d = new Date(); return d.toTimeString().slice(0, 8); }
+
+  function diffEvents(st) {
+    const cur = {}, bySwitch = {};
+    (st.ports || []).forEach(p => { cur[p.s + ":" + p.p] = p.l; });
+    const conf = new Set((st.faults || []).filter(f => f.confirmed).map(f => f.id));
+    if (prevPorts) {
+      Object.keys(cur).forEach(k => { if (prevPorts[k] !== cur[k]) { const sw = k.split(":")[0]; bySwitch[sw] = (bySwitch[sw] || 0) + 1; } });
+      Object.keys(bySwitch).forEach(sw => {
+        const mine = me && me.switch === sw;
+        feed.unshift({ t: hhmm(), text: (mine ? "You (" + sw + ")" : sw) + " reported " + bySwitch[sw] + " port" + (bySwitch[sw] > 1 ? "s" : "") });
+      });
+      conf.forEach(id => { if (!prevConfirmed.has(id)) {
+        const f = (st.faults || []).filter(x => x.id === id)[0];
+        feed.unshift({ t: hhmm(), text: "Problem " + id + " confirmed: " + (f.ports || []).map(p => p.s + " " + p.p).join(", "), hot: true });
+        toast("Problem " + id + " confirmed!");
+      } });
+      feed = feed.slice(0, 40);
+    }
+    flash = new Set(Object.keys(bySwitch));
+    if (flash.size) setTimeout(() => { flash = new Set(); drawMap(); }, 3200);
+    prevPorts = cur; prevConfirmed = conf;
+    if (feed.length) $("feed").innerHTML = feed.slice(0, 8).map(e => '<li class="' + (e.hot ? "hot" : "") + '"><span class="ts">' + e.t + "</span> " + esc(e.text) + "</li>").join("");
   }
 
   async function refresh() {
@@ -106,6 +195,8 @@
     } catch (err) { showErr($("mapErr"), err.message); return; }
     const st = lastStatus, done = (st.faults || []).filter(f => f.confirmed);
     const allUp = done.length === st.faults_total && st.faults_total > 0;
+    if (allUp && prevConfirmed && prevConfirmed.size < st.faults_total) toast("FABRIC UP. Firepath may route.");
+    diffEvents(st);
     $("sFaults").textContent = done.length + " / " + st.faults_total;
     const sw = new Set((st.ports || []).map(p => p.s));
     $("sReported").textContent = sw.size + " / 15";

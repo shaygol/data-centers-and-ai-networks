@@ -64,8 +64,16 @@
     </div>
 
     <div id="tablePanel">
-      <details class="guide" open>
-        <summary>How to read your table</summary>
+      <p class="how"><b>1.</b> Click a port to probe it. <b>2.</b> Compare the plan with what ND heard. <b>3.</b> Drop a label on the port.</p>
+      <div class="faceplate" id="face" role="group" aria-label="Front panel of your switch"></div>
+      <div class="probe-card">
+        <svg id="probe" viewBox="0 0 520 200" role="img" aria-label="Probe of the selected port"></svg>
+        <p class="probe-text" id="probeText">Select a port above to probe it.</p>
+      </div>
+      <div class="tray-head"><b>Labels</b> <span class="fine">drag a label onto a port, or select a label and click a port</span></div>
+      <div class="tray" id="tray"></div>
+      <details class="guide">
+        <summary>What do the fields mean? (and the raw table)</summary>
         <dl>
           <dt>Expected peer</dt><dd>Who the cluster config says is at the other end.</dd>
           <dt>Discovered peer</dt><dd>Who ND actually hears on this port. <code>-</code> means nothing is heard.</dd>
@@ -73,14 +81,13 @@
           <dt>PHY</dt><dd>Physical link status: is there a working cable at all?</dd>
           <dt>Error rate</dt><dd>ND's link error signal.</dd>
         </dl>
-        <p class="fine">Labels: <b>OK</b> &middot; <b>Miswired</b> (a different peer than expected) &middot; <b>One-way</b> (only one direction works) &middot; <b>High errors</b> &middot; <b>Link down</b> (PHY down) &middot; <b>Peer silent</b> (PHY up, but no ND from the peer).</p>
+        <div class="tbl-wrap">
+          <table class="ports">
+            <thead><tr><th>Port</th><th>Expected peer</th><th>Discovered peer</th><th>Peer hears you</th><th>PHY</th><th>Error rate</th><th>Your label</th></tr></thead>
+            <tbody id="portRows"></tbody>
+          </table>
+        </div>
       </details>
-      <div class="tbl-wrap">
-        <table class="ports">
-          <thead><tr><th>Port</th><th>Expected peer</th><th>Discovered peer</th><th>Peer hears you</th><th>PHY</th><th>Error rate</th><th>Your label</th></tr></thead>
-          <tbody id="portRows"></tbody>
-        </table>
-      </div>
       <div class="row">
         <button class="btn primary" id="sendReport" type="button">Send report</button>
         <span class="fine" id="reportMsg"></span>
@@ -101,6 +108,8 @@
       <li><i class="lg lg-suspect"></i>Someone flagged a problem</li>
       <li><i class="lg lg-confirmed"></i>Confirmed fault</li>
     </ul>
+    <div class="feed-head"><b>Live feed</b></div>
+    <ul class="feed" id="feed"><li class="fine">Waiting for the first report…</li></ul>
     <div id="faultList" class="faults"></div>
     <p class="err" id="mapErr" hidden></p>
   </section>
@@ -127,6 +136,7 @@
     </form>
   </section>
 
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
   <footer class="fine">Based on A. Singh et al., &ldquo;Jupiter Rising: A Decade of Clos Topologies and Centralized Control in Google's Datacenter Network&rdquo;, SIGCOMM 2015, Sections 5.2.1 and 5.3. The JR-16 fabric and its faults are made up for this exercise.</footer>
 </main>
 <script src="js/config.js"></script>
