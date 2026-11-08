@@ -29,10 +29,23 @@
       p.tips.push(line);
     });
     let h = '<defs><filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+    const flags = o.flags || {}, mine = new Set(o.myflags || []);
     Object.values(pairs).sort((x, y) => ORDER[x.st] - ORDER[y.st]).forEach(p => {
       const [x1, y1] = P[p.a], [x2, y2] = P[p.b];
+      p.key = p.a + "|" + p.b;
+      if (o.selPair === p.key) h += '<line class="lk-sel" x1="' + x1 + '" y1="' + (y1 + 16) + '" x2="' + x2 + '" y2="' + (y2 - (p.b.startsWith("T") ? 12 : 16)) + '"/>';
       const ya = y1 + (p.a.startsWith("SP") ? 16 : 16), yb = y2 - (p.b.startsWith("T") ? 12 : 16);
       h += '<line class="lk lk-' + p.st + '" x1="' + x1 + '" y1="' + ya + '" x2="' + x2 + '" y2="' + yb + '"' + (p.st === "confirmed" ? ' filter="url(#glow)"' : "") + "><title>" + esc(p.a + " \u2194 " + p.b + "\n" + p.tips.join("\n")) + "</title></line>";
+    });
+    // wide invisible hit areas (thin lines are hard to click) and flag markers
+    Object.values(pairs).forEach(p => {
+      const [x1, y1] = P[p.a], [x2, y2] = P[p.b], yb = y2 - (p.b.startsWith("T") ? 12 : 16);
+      h += '<line class="hit" data-pair="' + p.key + '" x1="' + x1 + '" y1="' + (y1 + 16) + '" x2="' + x2 + '" y2="' + yb + '"><title>' + esc(p.a + " \u2194 " + p.b + " (click to inspect and flag)") + "</title></line>";
+    });
+    Object.values(pairs).forEach(p => {
+      const c = flags[p.key]; if (!c) return;
+      const [x1, y1] = P[p.a], [x2, y2] = P[p.b], yb = y2 - (p.b.startsWith("T") ? 12 : 16), mx = (x1 + x2) / 2, my = ((y1 + 16) + yb) / 2;
+      h += '<g class="flag' + (mine.has(p.key) ? " mine" : "") + '" data-pair="' + p.key + '"><circle cx="' + mx + '" cy="' + my + '" r="10"/><text x="' + mx + '" y="' + (my + 4) + '" text-anchor="middle">' + c + "</text></g>";
     });
     T.ALL.forEach(s => {
       const [x, y] = P[s], tor = s.startsWith("T"), w = tor ? 54 : 74, hh = tor ? 24 : 32;
@@ -47,13 +60,14 @@
     h += '<text class="blk" x="260" y="395" text-anchor="middle">BLOCK A</text><text class="blk" x="700" y="395" text-anchor="middle">BLOCK B</text>' +
          '<text class="tier" x="12" y="56">SPINE</text><text class="tier" x="12" y="204">AGGR.</text><text class="tier" x="12" y="344">ToR</text>';
     svg.innerHTML = h;
+    return pairs;
   }
 
   function fromStatus(st) {
     const latest = {}, reported = new Set(), confirmed = new Set();
     (st.ports || []).forEach(r => { latest[r.s + ":" + r.p] = r.l; reported.add(r.s); });
     (st.faults || []).forEach(f => { if (f.confirmed) (f.ports || []).forEach(p => confirmed.add(p.s + ":" + p.p)); });
-    return { latest, reported, confirmed };
+    return { latest, reported, confirmed, flags: st.flags || {} };
   }
 
   window.MH_MAP = { render, fromStatus, LABELS, esc };

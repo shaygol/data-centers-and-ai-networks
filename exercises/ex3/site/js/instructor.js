@@ -40,6 +40,7 @@
     const truth = new Set();
     if ($("showKey").checked) (st.all_faults || []).forEach(f => (f.ports || []).forEach(p => truth.add(p.s + ":" + p.p)));
     render($("map"), Object.assign(base, { truth }));
+    $("flagStat").textContent = st.flag_total + " flags placed, " + st.flag_hits + " of them on links that really have a fault.";
     const done = (st.all_faults || []).filter(f => f.confirmed).length;
     $("iSeats").textContent = st.seats;
     $("iRep").textContent = st.reporters;

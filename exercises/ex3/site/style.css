@@ -179,3 +179,14 @@ footer { margin-top: 8px; }
 #map .nd-flash rect { stroke: var(--accent); stroke-width: 3.2; animation: flash 0.7s 4; }
 .toast { position: fixed; left: 50%; bottom: max(18px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--accent); color: var(--accent-ink); font: 700 0.95rem var(--mono); padding: 11px 20px; border-radius: 999px; box-shadow: 0 6px 30px rgba(0,0,0,0.5); z-index: 40; max-width: calc(100vw - 32px); }
 .toast[hidden] { display: none; }
+
+/* flags and link card */
+#map .hit { stroke: transparent; stroke-width: 14; cursor: pointer; pointer-events: stroke; }
+#map .lk-sel { stroke: #fff; stroke-width: 7; opacity: 0.18; stroke-linecap: round; }
+#map .flag circle { fill: var(--warn); stroke: var(--bg); stroke-width: 2; cursor: pointer; }
+#map .flag.mine circle { stroke: var(--accent); stroke-width: 3; }
+#map .flag text { font: 700 11px var(--mono); fill: #1A1200; pointer-events: none; }
+.linkcard { margin-top: 14px; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.linkcard .lc-head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.linkcard ul { margin: 8px 0 0; padding-left: 18px; font: 0.82rem var(--mono); color: var(--muted); }
+.linkcard .row { margin-top: 10px; }

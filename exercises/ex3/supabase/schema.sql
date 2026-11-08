@@ -23,6 +23,9 @@ create table if not exists reports (
   switch_id text not null, port text not null, email_hash text not null, label text not null,
   updated_at timestamptz not null default now(),
   primary key (switch_id, port, email_hash));
+create table if not exists suspects (
+  email_hash text not null, pair text not null, created_at timestamptz not null default now(),
+  primary key (email_hash, pair));
 create table if not exists answers (
   email_hash text primary key, q1 text, q2 text, updated_at timestamptz not null default now());
 
@@ -35,6 +38,7 @@ alter table settings enable row level security;
 alter table seats enable row level security;
 alter table reports enable row level security;
 alter table answers enable row level security;
+alter table suspects enable row level security;
 
 -- helpers ------------------------------------------------------------------
 create or replace function _check_hash(p_hash text) returns void language plpgsql as $$
@@ -43,6 +47,18 @@ begin
     raise exception 'bad identity';
   end if;
 end $$;
+
+create or replace function _pair_key(a text, b text) returns text language sql immutable as $$
+  select case when (case left(a,2) when 'SP' then 0 when 'AG' then 1 else 2 end)
+                  < (case left(b,2) when 'SP' then 0 when 'AG' then 1 else 2 end)
+              then a || '|' || b else b || '|' || a end $$;
+
+create or replace function _fault_pairs() returns table (pair text)
+language sql stable as $$
+  select distinct _pair_key(t.switch_id, split_part(pv.expected, ' ', 1))
+  from truth t join port_views pv on pv.switch_id = t.switch_id and pv.port = t.port
+  where t.fault_id is not null;
+$$;
 
 create or replace function _latest_reports() returns table (switch_id text, port text, label text)
 language sql stable as $$
@@ -91,7 +107,27 @@ begin
                        'peer_hears', peer_hears, 'phy', phy, 'err', err) order by ord)
                       from port_views where switch_id = s), '[]'::jsonb),
     'mine', coalesce((select jsonb_object_agg(port, label) from reports where email_hash = p_hash), '{}'::jsonb),
+    'flags', coalesce((select jsonb_agg(pair order by created_at) from suspects where email_hash = p_hash), '[]'::jsonb),
     'answers', (select jsonb_build_object('q1', q1, 'q2', q2) from answers where email_hash = p_hash));
+end $$;
+
+-- Each student has 5 flags to put on links of the planned topology they suspect.
+create or replace function toggle_suspect(p_hash text, p_pair text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare n int; had boolean;
+begin
+  perform _check_hash(p_hash);
+  if not exists (select 1 from seats where email_hash = p_hash) then raise exception 'no seat'; end if;
+  if not exists (select 1 from port_views pv where _pair_key(pv.switch_id, split_part(pv.expected, ' ', 1)) = p_pair) then
+    raise exception 'not a link in the plan';
+  end if;
+  delete from suspects where email_hash = p_hash and pair = p_pair returning true into had;
+  if had is null then
+    select count(*) into n from suspects where email_hash = p_hash;
+    if n >= 5 then raise exception 'You have used all 5 flags. Remove one first.'; end if;
+    insert into suspects(email_hash, pair) values (p_hash, p_pair);
+  end if;
+  return coalesce((select jsonb_agg(pair order by created_at) from suspects where email_hash = p_hash), '[]'::jsonb);
 end $$;
 
 create or replace function submit_report(p_hash text, p_labels jsonb) returns int
@@ -131,6 +167,7 @@ language sql security definer set search_path = public as $$
     'faults', coalesce((select jsonb_agg(case when confirmed
                          then jsonb_build_object('id', id, 'confirmed', true, 'ports', ports)
                          else jsonb_build_object('id', id, 'confirmed', false) end order by id) from _fault_state()), '[]'::jsonb),
+    'flags', coalesce((select jsonb_object_agg(pair, c) from (select pair, count(*) c from suspects group by pair) f), '{}'::jsonb),
     'answered', (select count(*) from answers),
     'q1_correct', (select count(*) from answers a where a.q1 = (select answer from rootcause_key where q = 'q1')),
     'q2_correct', (select count(*) from answers a where a.q2 = (select answer from rootcause_key where q = 'q2')));
@@ -153,6 +190,8 @@ begin
     'seat_map', (select jsonb_object_agg(sl.id, (select count(*) from seats s where s.switch_id = sl.id)) from switch_list sl),
     'q1', (select coalesce(jsonb_object_agg(q1, n), '{}'::jsonb) from (select q1, count(*) n from answers where q1 is not null group by q1) x),
     'q2', (select coalesce(jsonb_object_agg(q2, n), '{}'::jsonb) from (select q2, count(*) n from answers where q2 is not null group by q2) x),
+    'flag_total', (select count(*) from suspects),
+    'flag_hits', (select count(*) from suspects su where su.pair in (select pair from _fault_pairs())),
     'answer_key', (select jsonb_object_agg(q, answer) from rootcause_key),
     'wrong_flags', (select count(*) from _latest_reports() lr join truth t using (switch_id, port) where not lr.label = any(t.accepted)));
 end $$;
@@ -161,11 +200,11 @@ create or replace function reset_game(p_key text) returns void
 language plpgsql security definer set search_path = public as $$
 begin
   perform _check_key(p_key);
-  delete from reports; delete from answers; delete from seats;
+  delete from reports; delete from answers; delete from suspects; delete from seats;
 end $$;
 
 -- only the API functions are callable from the browser
 revoke all on all functions in schema public from public;
-grant execute on function claim_seat(text), get_my_view(text), submit_report(text, jsonb),
+grant execute on function claim_seat(text), get_my_view(text), toggle_suspect(text, text), submit_report(text, jsonb),
   submit_answers(text, text, text), fabric_status(), instructor_status(text), reset_game(text) to anon, authenticated;
-revoke all on function _check_hash(text), _latest_reports(), _fault_state(), _check_key(text) from anon, authenticated;
+revoke all on function _check_hash(text), _latest_reports(), _fault_state(), _check_key(text), _pair_key(text, text), _fault_pairs() from anon, authenticated;

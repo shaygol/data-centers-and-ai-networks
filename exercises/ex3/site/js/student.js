@@ -4,7 +4,7 @@
   const { render, fromStatus, LABELS, esc } = window.MH_MAP;
   const KEY = "mh-hash";
   let me = null;        // { hash, switch, rows, mine, answers }
-  let lastStatus = null, prevPorts = null, prevConfirmed = null, flash = new Set(), feed = [];
+  let lastPairs = {}, selPair = null, lastStatus = null, prevFlags = null, prevPorts = null, prevConfirmed = null, flash = new Set(), feed = [];
 
   function showErr(el, msg) { el.textContent = msg; el.hidden = !msg; }
 
@@ -32,7 +32,7 @@
   async function loadMe(hash) {
     const v = await rpc("get_my_view", { p_hash: hash });
     if (!v) { store.del(KEY); $("joinCard").hidden = false; return; }
-    me = { hash, switch: v.switch, rows: v.rows || [], mine: v.mine || {}, labels: Object.assign({}, v.mine || {}), sent: Object.keys(v.mine || {}).length > 0, answers: v.answers };
+    me = { hash, flags: v.flags || [], switch: v.switch, rows: v.rows || [], mine: v.mine || {}, labels: Object.assign({}, v.mine || {}), sent: Object.keys(v.mine || {}).length > 0, answers: v.answers };
     selPort = null; selLabel = null;
     $("joinCard").hidden = true;
     $("consoleCard").hidden = false;
@@ -156,7 +156,8 @@
   // ---------- shared map ----------
   function drawMap() {
     const base = lastStatus ? fromStatus(lastStatus) : { latest: {}, reported: new Set(), confirmed: new Set() };
-    render($("map"), Object.assign(base, { me: me && me.switch, flash }));
+    lastPairs = render($("map"), Object.assign(base, { me: me && me.switch, flash, selPair, myflags: me ? me.flags : [] }));
+    renderLink();
   }
 
   function toast(msg) {
@@ -182,6 +183,9 @@
       } });
       feed = feed.slice(0, 40);
     }
+    const fl = st.flags || {};
+    if (prevFlags) Object.keys(fl).forEach(k => { if ((fl[k] || 0) > (prevFlags[k] || 0)) feed.unshift({ t: hhmm(), text: "A flag went on " + k.replace("|", " \u2194 ") + " (" + fl[k] + " now)" }); });
+    prevFlags = fl;
     flash = new Set(Object.keys(bySwitch));
     if (flash.size) setTimeout(() => { flash = new Set(); drawMap(); }, 3200);
     prevPorts = cur; prevConfirmed = conf;
@@ -208,6 +212,30 @@
         : '<article class="fault"><h3>Problem ' + f.id + ": not confirmed yet</h3></article>").join("");
     drawMap();
   }
+
+  // ---------- link card and flags ----------
+  function renderLink() {
+    const el = $("linkCard"), p = selPair && lastPairs[selPair];
+    if (!p) { el.hidden = true; return; }
+    el.hidden = false;
+    const flagged = me && me.flags.indexOf(selPair) >= 0, left = me ? 5 - me.flags.length : 0;
+    const count = (lastStatus && lastStatus.flags && lastStatus.flags[selPair]) || 0;
+    el.innerHTML = '<div class="lc-head"><b class="mono">' + esc(p.a) + " \u2194 " + esc(p.b) + '</b><span class="fine">' + count + " flag" + (count === 1 ? "" : "s") + " from the class</span></div>" +
+      "<ul>" + p.tips.map(t => "<li>" + esc(t) + "</li>").join("") + "</ul>" +
+      (me ? '<div class="row"><button class="btn ' + (flagged ? "" : "primary") + '" id="flagBtn" type="button"' + (!flagged && left <= 0 ? " disabled" : "") + ">" + (flagged ? "Remove my flag" : "Flag as suspect") + '</button><span class="fine">' + (left <= 0 && !flagged ? "All 5 flags are placed. Remove one to move it." : "You have " + left + " of 5 flags left.") + "</span></div>" : '<p class="fine">Take a switch to flag links.</p>');
+  }
+  $("map").addEventListener("click", e => {
+    const t = e.target.closest("[data-pair]"); if (!t) return;
+    selPair = t.getAttribute("data-pair"); drawMap();
+    $("linkCard").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  });
+  $("linkCard").addEventListener("click", async e => {
+    if (!e.target.closest("#flagBtn") || !me || !selPair) return;
+    const b = e.target.closest("#flagBtn"); b.disabled = true;
+    try { me.flags = await rpc("toggle_suspect", { p_hash: me.hash, p_pair: selPair }); await refresh(); }
+    catch (err) { toast(err.message); }
+    renderLink();
+  });
 
   // ---------- boot ----------
   drawMap();

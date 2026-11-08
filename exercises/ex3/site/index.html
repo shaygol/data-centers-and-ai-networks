@@ -97,7 +97,7 @@
 
   <section class="card" id="mapCard">
     <div class="console-head">
-      <div><h2>Shared fabric map</h2><p class="fine">Built from everyone's reports. Hover a link to see what each end said. Refreshes every few seconds.</p></div>
+      <div><h2>Shared fabric map</h2><p class="fine">Built from everyone's reports. <b>Click a link</b> to see what each end said and to put one of your 5 flags on it. Refreshes every few seconds.</p></div>
       <button class="btn ghost" id="refresh" type="button">Refresh</button>
     </div>
     <div class="map-wrap"><svg id="map" viewBox="0 0 960 400" role="img" aria-label="Shared map of the JR-16 fabric"></svg></div>
@@ -108,6 +108,7 @@
       <li><i class="lg lg-suspect"></i>Someone flagged a problem</li>
       <li><i class="lg lg-confirmed"></i>Confirmed fault</li>
     </ul>
+    <div class="linkcard" id="linkCard" hidden></div>
     <div class="feed-head"><b>Live feed</b></div>
     <ul class="feed" id="feed"><li class="fine">Waiting for the first report…</li></ul>
     <div id="faultList" class="faults"></div>

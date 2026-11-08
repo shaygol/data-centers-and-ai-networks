@@ -9,7 +9,7 @@ only that switch's ND port table: expected peer (cluster config), discovered pee
 hears them, PHY state and error rate. They label every port, and the labels paint a shared map that
 everyone sees. Five problems are hidden in the fabric. A problem is *confirmed* when switches on two
 different sides of it have labeled it correctly. When all five are confirmed the fabric comes up.
-Then each student answers two root-cause questions that need the shared map, because some
+Each student also has five *flags* to put on links of the shared map that they suspect, so the class can see where its attention is going. Then each student answers two root-cause questions that need the shared map, because some
 problems look identical from one switch.
 
 One student gets the switch whose software crashed. Their console is dark and their job is to find
