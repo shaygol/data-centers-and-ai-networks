@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>מפת השיעור</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap">
+<style>
+/* Layout concept: one wide stage of floating bubbles (hubs = the five goals + opening), links as thin lines, an editing drawer under it. */
+:root{
+  color-scheme:light;
+  --bg:#f6f5f2; --fg:#1d2330; --muted:#5d6577; --panel:#ffffff; --line:#c9ccd4; --edge:#9aa1b2;
+  --c-open:#5b6475; --c-sdn:#2f6fd6; --c-fail:#c4551a; --c-evo:#2a8a4a; --c-theory:#7a4fc7; --c-cong:#c0306f; --c-gen:#0e7c86; --c-read:#9a7b00; --c-q:#8a5a2b;
+  --font:'Heebo',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#14171e; --fg:#e8eaf0; --muted:#9aa2b4; --panel:#1d222c; --line:#323847; --edge:#5d6679;
+    --c-open:#9aa3b8; --c-sdn:#6ba2ff; --c-fail:#ff8f55; --c-evo:#58c97c; --c-theory:#b394ff; --c-cong:#ff74a8; --c-gen:#4ccbd6; --c-read:#e5c24a; --c-q:#d9a066;
+    color-scheme:dark;
+  }
+}
+[hidden]{display:none!important}
+body{margin:0;font-size:14px;background:var(--bg);color:var(--fg);font-family:var(--font);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 32px}
+*{box-sizing:border-box}
+.wrap{max-width:1700px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+header{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:baseline;justify-content:space-between}
+h1{font-size:1.5rem;font-weight:700;margin:0;text-wrap:balance}
+.sub{color:var(--muted);font-size:.9rem;margin:2px 0 0}
+.count{color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--cc);color:var(--fg);background:color-mix(in srgb,var(--cc) 12%,var(--bg));border-radius:999px;padding:5px 12px;font:inherit;font-size:.85rem;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--cc);color:var(--bg);font-weight:600}
+.chip:focus-visible,.btn:focus-visible,.bubble:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.stage{position:relative;direction:ltr;height:clamp(600px,100vh,1400px);border:1px solid var(--line);border-radius:14px;background:
+  radial-gradient(circle at 1px 1px,var(--line) 1px,transparent 1.2px) 0 0/26px 26px,var(--panel);overflow:hidden;touch-action:none}
+svg.edges{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+svg.edges line{stroke:var(--edge);stroke-width:1.4;opacity:.75}
+svg.edges line.hot{stroke:var(--fg);stroke-width:2.2;opacity:1}
+.bubble{position:absolute;left:0;top:0;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;
+  border:2px solid var(--cc);background:color-mix(in srgb,var(--cc) 16%,var(--panel));color:var(--fg);
+  padding:8px;cursor:grab;user-select:none;-webkit-user-select:none;transition:opacity .2s,box-shadow .2s;will-change:transform}
+.bubble .t{unicode-bidi:isolate;font-size:.78rem;line-height:1.2;font-weight:500;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.bubble.hub{background:var(--cc);color:var(--bg);border-width:0}
+.bubble.hub .t{font-size:.9rem;font-weight:700}
+.bubble:not(.hub){padding:5px}
+.bubble:not(.hub) .t{font-size:.68rem;line-height:1.15}
+.bubble.hub.goal .t{font-size:1.02rem}
+.bubble.hub.minor{background:color-mix(in srgb,var(--cc) 14%,var(--panel));color:var(--fg);border:2px solid var(--cc)}
+.bubble.hub.minor .t{font-size:.8rem}
+.bubble.s-proposed{border-style:dashed}
+.bubble.s-done{background:color-mix(in srgb,var(--cc) 34%,var(--panel))}
+.bubble.sel{box-shadow:0 0 0 4px var(--bg),0 0 0 6px var(--fg)}
+.bubble.dim{opacity:.18}
+.bubble.pin::after{content:"";position:absolute;top:6%;right:12%;width:9px;height:9px;border-radius:50%;background:var(--fg)}
+.bubble.linkfrom{box-shadow:0 0 0 4px var(--bg),0 0 0 6px var(--c-fail)}
+.empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);direction:rtl;text-align:center;padding:24px}
+.hint{font-size:.78rem;color:var(--muted)}
+.drawer{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px;grid-template-columns:1fr 1fr}
+.drawer .full{grid-column:1/-1}
+@media (max-width:640px){.drawer{grid-template-columns:1fr}}
+label{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted)}
+input,textarea,select{font:inherit;font-size:.95rem;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0;width:100%}
+textarea{min-height:92px;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:8px;padding:7px 14px;cursor:pointer}
+.btn.primary{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.btn.danger{color:var(--c-fail);border-color:var(--c-fail)}
+.btn:disabled{opacity:.4;cursor:default}
+.keybox{display:flex;gap:8px;align-items:center}
+.keybox input{width:220px;padding:6px 10px}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links button{font:inherit;font-size:.78rem;border:1px solid var(--cc);border-radius:999px;background:color-mix(in srgb,var(--cc) 12%,var(--bg));color:var(--fg);padding:3px 10px;cursor:pointer}
+.links button::after{content:" ×";color:var(--muted)}
+.note{color:var(--muted);font-size:.85rem}
+.status{font-size:.82rem;color:var(--c-fail)}
+.timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.tcol{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.tcol h2{font-size:.95rem;margin:0 0 2px}
+.tcard{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-inline-start:5px solid var(--cc);border-radius:10px;padding:8px 10px;background:var(--bg);cursor:pointer;min-width:0}
+.tcard:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.tcard.sel{outline:2px solid var(--fg)}
+.tcard .tn{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.85rem;min-width:1.2em}
+.tcard .tb{flex:1;min-width:0;overflow-wrap:anywhere}
+.tcard .tl{font-size:.9rem;font-weight:500}
+.tcard .ts{font-size:.75rem;color:var(--muted)}
+.tcard .mv{display:flex;flex-direction:column;gap:2px}
+.tcard .mv button{font:inherit;font-size:.7rem;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:6px;padding:0 6px;cursor:pointer;line-height:1.4}
+.tcard .mv button:disabled{opacity:.3;cursor:default}
+@media (prefers-reduced-motion:reduce){.bubble{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap" dir="rtl" lang="he">
+  <header>
+    <div>
+      <h1 id="ttl">מפת השיעור</h1>
+      <p class="sub" id="sub">Jupiter Rising · כל הערה היא בועה, וקווים מראים מה קשור למה</p>
+    </div>
+    <div class="count" id="count" aria-live="polite"></div>
+  </header>
+
+  <div class="legend" id="legend" role="group" aria-label="סינון לפי נושא"></div>
+
+  <div class="stage" id="stage">
+    <svg class="edges" id="edges" aria-hidden="true"></svg>
+    <div class="empty" id="empty">טוען את ההערות…</div>
+  </div>
+
+  <div class="hint" id="hint"></div>
+
+  <div class="timeline" id="timeline" hidden></div>
+
+  <div class="row">
+    <button class="btn primary" id="add" type="button" hidden>+ בועה חדשה</button>
+    <button class="btn" id="lang" type="button">English</button>
+    <button class="btn" id="view" type="button">תצוגה: מפה (לחץ לסדר השיעור)</button>
+    <button class="btn" id="mode" type="button">פריסה: מקובצת לפי מטרה (לחץ לחופשית)</button>
+    <button class="btn" id="lock" type="button">פתח לעריכה</button>
+    <form class="keybox" id="keybox" hidden>
+      <input id="key" type="password" autocomplete="off" aria-label="מפתח עריכה">
+      <button class="btn primary" id="key-ok" type="submit">אישור</button>
+    </form>
+    <span class="status" id="status" role="status"></span>
+  </div>
+
+  <section class="drawer" id="drawer" aria-label="עריכת בועה" hidden>
+    <label class="full">כותרת קצרה (מופיעה בבועה)
+      <input id="f-label" type="text" maxlength="60" autocomplete="off">
+    </label>
+    <label class="full">פירוט
+      <textarea id="f-text"></textarea>
+    </label>
+    <label>נושא
+      <select id="f-group"></select>
+    </label>
+    <label>סטטוס
+      <select id="f-status">
+        <option value="new">חדש</option>
+        <option value="proposed">הוצע, מחכה לאישור</option>
+        <option value="done">סגור</option>
+      </select>
+    </label>
+    <label>מקור במאמר (סעיף, איור או טבלה)
+      <input id="f-source" type="text" maxlength="80" autocomplete="off">
+    </label>
+    <label>מקום בשיעור
+      <select id="f-session">
+        <option value="0">לא שובץ</option>
+        <option value="1">מפגש 1</option>
+        <option value="2">מפגש 2</option>
+        <option value="3">שיעור בית</option>
+      </select>
+    </label>
+    <div class="full">
+      <div class="note" id="links-title">קשרים</div>
+      <div class="links" id="links"></div>
+    </div>
+    <div class="full row">
+      <button class="btn" id="b-link" type="button">חבר לבועה אחרת</button>
+      <button class="btn" id="b-unpin" type="button">שחרר נעיצה</button>
+      <button class="btn danger" id="b-del" type="button">מחק בועה</button>
+      <button class="btn" id="b-close" type="button">סגור</button>
+    </div>
+  </section>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script>
+(function(){
+  const MH = window.MH;
+  const GROUPS = {
+    open:{name:'פתיחה',v:'--c-open'}, sdn:{name:'SDN / Firepath',v:'--c-sdn'},
+    fail:{name:'כשלים ותחזוקה',v:'--c-fail'}, evo:{name:'התקדמות בין דורות',v:'--c-evo'},
+    theory:{name:'מתיאוריה לייצור',v:'--c-theory'}, cong:{name:'עומסים בפועל',v:'--c-cong'},
+    read:{name:'קטעי קריאה',v:'--c-read'},
+    q:{name:'שאלות מנחות',v:'--c-q'},
+    gen:{name:'מבנה כללי',v:'--c-gen'}
+  };
+  const ORDER = ['open','sdn','fail','evo','theory','cong','read','q'];
+  const EN_GROUPS={open:'Opening',sdn:'SDN / Firepath',fail:'Failures & maintenance',evo:'Evolution across generations',theory:'From theory to production',cong:'Congestion in practice',read:'Reading passages',q:'Guiding questions',gen:'General structure'};
+  let lang='he';
+  const L=(he,en)=>lang==='en'?en:he;
+  const gname=g=>lang==='en'?(EN_GROUPS[g]||EN_GROUPS.gen):(GROUPS[g]||GROUPS.gen).name;
+  const lbl=n=>(lang==='en'&&n.label_en)?n.label_en:(n.label||'');
+  const txt=n=>(lang==='en'&&n.text_en)?n.text_en:(n.text||'');
+  const $ = id => document.getElementById(id);
+  const stage=$('stage'), edgesSvg=$('edges'), emptyEl=$('empty'), statusEl=$('status');
+  const notes=new Map(), links=new Map(), els=new Map(), lineEls=new Map();
+  let selected=null, linkFrom=null, filter=null, canWrite=false, loaded=false;
+  let db=null, W=800, H=560, alpha=0, raf=0;
+
+  const setStatus=t=>{statusEl.textContent=t||''};
+  const gv=g=>`var(${(GROUPS[g]||GROUPS.gen).v})`;
+  const GOALS=['sdn','fail','evo','theory','cong'];
+  const radius=n=>n.kind==='hub'?(GOALS.includes(n.group)?62:(n.group==='gen'?58:46)):Math.min(48,Math.max(32+Math.min((lbl(n)||'').length,26)*0.5,(Math.max(1,...(lbl(n)||'').split(/[\s\-\/]+/).map(w=>w.length))*6.6+22)/2));
+
+  /* legend */
+  const legend=$('legend'), gsel=$('f-group');
+  Object.entries(GROUPS).forEach(([k,g])=>{
+    const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=gname(k); b.dataset.g=k;
+    b.style.setProperty('--cc',`var(${g.v})`); b.setAttribute('aria-pressed','false');
+    b.onclick=()=>{filter=filter===k?null:k; legend.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String(c===b&&filter===k))); paint();};
+    legend.appendChild(b);
+    const o=document.createElement('option'); o.value=k; o.textContent=gname(k); o.dataset.g=k; gsel.appendChild(o);
+  });
+
+  /* ---- layout simulation ---- */
+  function anchor(g){
+    if(g==='gen'||!ORDER.includes(g)) return {x:W/2,y:H/2};
+    const a=-Math.PI/2+ORDER.indexOf(g)*2*Math.PI/ORDER.length;
+    return {x:W/2+Math.cos(a)*W*0.33,y:H/2+Math.sin(a)*H*0.33};
+  }
+  let mode='tree';
+  function layoutTree(){
+    /* default arrangement, taken from the layout the user settled on: goals as a tight row in the middle, opening far left, reading far right, guiding questions right of the goals */
+    const HP={gen:[.53,.09],sdn:[.203,.369],fail:[.285,.365],evo:[.368,.371],theory:[.453,.373],cong:[.535,.375],open:[.058,.191],read:[.877,.217],q:[.71,.539]};
+    const hubR=g=>GOALS.includes(g)?62:(g==='gen'?58:46), kids={};
+    for(const [id,n] of notes){
+      if(n.kind==='hub'){const p=HP[n.group]||HP.gen;n.tx=p[0]*W;n.ty=p[1]*H;continue}
+      (kids[n.group]=kids[n.group]||[]).push(n);
+    }
+    for(const [g,list] of Object.entries(kids)){
+      list.sort((a,b)=>(a.order||0)-(b.order||0)||(a.label||'').localeCompare(b.label||''));
+      const p=HP[g]||HP.gen; let acc=p[1]*H+hubR(g)+12;
+      list.forEach((n,i)=>{
+        if(g==='gen'||!HP[g]){const s=i%2?1:-1;n.tx=HP.gen[0]*W+s*(150+Math.floor(i/2)*110);n.ty=HP.gen[1]*H+8;}
+        else{n.tx=p[0]*W+(GOALS.includes(g)?(i%2?1:-1)*10:0);n.ty=acc+n.r;acc+=n.r*2+8;}
+      });
+    }
+  }
+  function reheat(a){alpha=Math.max(alpha,a||0.6); if(!raf) raf=requestAnimationFrame(tick);}
+  function tick(){
+    raf=0;
+    const ns=[...notes.values()];
+    for(const n of ns){ if(n.x==null){const a=anchor(n.group); n.x=a.x+(Math.random()-.5)*80; n.y=a.y+(Math.random()-.5)*80; n.vx=0;n.vy=0;} }
+    for(const n of ns){
+      if(n.fx!=null&&n.fy!=null&&!n.drag){n.x=n.fx*W;n.y=n.fy*H;n.vx=n.vy=0;continue}
+      if(n.drag) continue;
+      const a=(mode==='tree'&&n.tx!=null)?{x:n.tx,y:n.ty}:anchor(n.group), k=mode==='tree'?0.09*Math.max(alpha,0.3):(n.kind==='hub'?0.06:0.018)*alpha;
+      n.vx+=(a.x-n.x)*k; n.vy+=(a.y-n.y)*k;
+    }
+    for(let i=0;i<ns.length;i++)for(let j=i+1;j<ns.length;j++){
+      const a=ns[i],b=ns[j]; let dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||1;
+      const min=a.r+b.r+10; let f=0;
+      if(d<min) f=(min-d)*0.08; else if(d<260) f=-900/(d*d);
+      dx/=d;dy/=d;
+      a.vx-=dx*f;a.vy-=dy*f;b.vx+=dx*f;b.vy+=dy*f;
+    }
+    for(const l of links.values()){
+      const a=notes.get(l.a),b=notes.get(l.b); if(!a||!b) continue;
+      let dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||1; const t=a.r+b.r+34, f=(d-t)*0.018*(0.4+alpha)*(mode==='tree'?0.2:1);
+      dx/=d;dy/=d; a.vx+=dx*f;a.vy+=dy*f;b.vx-=dx*f;b.vy-=dy*f;
+    }
+    let fast=0;
+    for(const n of ns){
+      if(n.drag||(n.fx!=null&&n.fy!=null)){continue}
+      n.vx*=0.78;n.vy*=0.78; n.x+=n.vx;n.y+=n.vy;
+      n.x=Math.min(W-n.r-4,Math.max(n.r+4,n.x)); n.y=Math.min(H-n.r-4,Math.max(n.r+4,n.y));
+      fast=Math.max(fast,Math.abs(n.vx)+Math.abs(n.vy));
+    }
+    place();
+    alpha*=0.965;
+    if(alpha>0.02||fast>0.15) raf=requestAnimationFrame(tick);
+  }
+  function place(){
+    for(const [id,n] of notes){
+      const e=els.get(id); if(e&&n.x!=null) e.style.transform=`translate(${n.x-n.r}px,${n.y-n.r}px)`;
+    }
+    for(const [id,l] of links){
+      const a=notes.get(l.a),b=notes.get(l.b),ln=lineEls.get(id); if(!a||!b||!ln||a.x==null||b.x==null) continue;
+      ln.setAttribute('x1',a.x);ln.setAttribute('y1',a.y);ln.setAttribute('x2',b.x);ln.setAttribute('y2',b.y);
+    }
+  }
+
+  /* ---- rendering ---- */
+  function syncEl(id){
+    const n=notes.get(id); let e=els.get(id);
+    if(!n){ if(e){e.remove();els.delete(id);} return; }
+    n.r=radius(n);
+    if(!e){
+      e=document.createElement('div'); e.className='bubble'; e.tabIndex=0; e.dataset.id=id; e.setAttribute('role','button');
+      const t=document.createElement('span'); t.className='t'; e.appendChild(t);
+      stage.appendChild(e); els.set(id,e); bindDrag(e,id);
+      e.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();activate(id);}});
+    }
+    e.firstChild.textContent=lbl(n)||L('ללא כותרת','Untitled'); e.firstChild.dir=lang==='en'?'ltr':'rtl';
+    e.style.width=e.style.height=(n.r*2)+'px';
+    e.style.setProperty('--cc',gv(n.group));
+    e.className='bubble'+(n.kind==='hub'?' hub'+(GOALS.includes(n.group)?' goal':(n.group==='open'||n.group==='read'||n.group==='q'?' minor':'')):'')+(' s-'+(n.status||'new'))+(n.fx!=null?' pin':'')+(id===selected?' sel':'')+(id===linkFrom?' linkfrom':'');
+    e.title=txt(n)+(n.source?'\n'+L('מקור: ','Source: ')+n.source:'');
+  }
+  function syncLine(id){
+    const l=links.get(id); let ln=lineEls.get(id);
+    if(!l||!notes.has(l.a)||!notes.has(l.b)){ if(ln){ln.remove();lineEls.delete(id);} return; }
+    if(!ln){ln=document.createElementNS('http://www.w3.org/2000/svg','line');edgesSvg.appendChild(ln);lineEls.set(id,ln);}
+  }
+  function paint(){
+    for(const [id,e] of els){
+      const n=notes.get(id); if(!n) continue;
+      e.classList.toggle('dim',!!(filter&&n.group!==filter));
+      e.classList.toggle('sel',id===selected);
+      e.classList.toggle('linkfrom',id===linkFrom);
+    }
+    for(const [id,ln] of lineEls){const l=links.get(id);ln.classList.toggle('hot',!!(selected&&l&&(l.a===selected||l.b===selected)));}
+    const hasAny=notes.size>0;
+    emptyEl.hidden=hasAny; if(!hasAny&&loaded) emptyEl.textContent=canWrite?L('עדיין אין בועות. הוסף את הראשונה.','No bubbles yet. Add the first one.'):L('עדיין אין בועות.','No bubbles yet.');
+    if(view==='time') renderTimeline();
+    $('count').textContent=hasAny?`${[...notes.values()].filter(n=>n.kind!=='hub').length} ${L('הערות · ','notes · ')}${[...lineEls.keys()].length} ${L('קשרים','links')}`:'';
+  }
+  /* ---- lesson order view ---- */
+  let view='map';
+  const sessionList=s=>[...notes.entries()].filter(([id,n])=>n.kind!=='hub'&&(n.session||0)===s)
+    .sort((a,b)=>(a[1].seq||0)-(b[1].seq||0)||(a[1].order||0)-(b[1].order||0)||(a[1].label||'').localeCompare(b[1].label||''))
+    .map(([id,n])=>({id,n}));
+  async function moveCard(s,i,d){
+    if(!db||!canWrite) return; const l=sessionList(s), j=i+d; if(j<0||j>=l.length) return;
+    [l[i],l[j]]=[l[j],l[i]];
+    for(let k=0;k<l.length;k++){ const n=l[k].n; if(n.seq!==k){n.seq=k; await guard(db.doc('notes/'+l[k].id).set(noteDoc(n)));} }
+    renderTimeline();
+  }
+  function renderTimeline(){
+    const box=$('timeline'); box.textContent='';
+    const defs=[[1,L('מפגש 1 · 50 דק׳','Session 1 · 50 min')],[2,L('מפגש 2 · 50 דק׳','Session 2 · 50 min')],[3,L('שיעור בית · שעה','Home session · 1 h')],[0,L('עוד לא שובץ','Not yet placed')]];
+    for(const [s,title] of defs){
+      const col=document.createElement('div'); col.className='tcol';
+      const h=document.createElement('h2'); h.textContent=title; col.appendChild(h);
+      const list=sessionList(s);
+      if(!list.length){const p=document.createElement('div'); p.className='note'; p.textContent=s?L('ריק, בחר "מקום בשיעור" בעריכת בועה','Empty. Choose "Place in the lesson" when editing a bubble.'):L('כל ההערות שובצו','Everything is placed'); col.appendChild(p);}
+      list.forEach(({id,n},i)=>{
+        const c=document.createElement('div'); c.className='tcard'+(id===selected?' sel':''); c.tabIndex=0; c.style.setProperty('--cc',gv(n.group));
+        const num=document.createElement('span'); num.className='tn'; num.textContent=s?String(i+1):'•';
+        const b=document.createElement('div'); b.className='tb';
+        const l=document.createElement('div'); l.className='tl'; l.textContent=lbl(n)||L('ללא כותרת','Untitled'); b.appendChild(l);
+        const sub=[gname(n.group),n.source].filter(Boolean).join(' · ');
+        const t=document.createElement('div'); t.className='ts'; t.textContent=sub; b.appendChild(t);
+        c.append(num,b);
+        if(s&&canWrite){
+          const mv=document.createElement('div'); mv.className='mv';
+          const up=document.createElement('button'); up.type='button'; up.textContent='▲'; up.setAttribute('aria-label',L('הזז למעלה','Move up')); up.disabled=i===0;
+          const dn=document.createElement('button'); dn.type='button'; dn.textContent='▼'; dn.setAttribute('aria-label',L('הזז למטה','Move down')); dn.disabled=i===list.length-1;
+          up.onclick=ev=>{ev.stopPropagation();moveCard(s,i,-1)}; dn.onclick=ev=>{ev.stopPropagation();moveCard(s,i,1)};
+          mv.append(up,dn); c.appendChild(mv);
+        }
+        c.onclick=()=>select(id); c.onkeydown=ev=>{if(ev.key==='Enter')select(id)};
+        col.appendChild(c);
+      });
+      box.appendChild(col);
+    }
+  }
+  $('view').onclick=()=>{
+    view=view==='map'?'time':'map';
+    $('stage').hidden=view==='time'; $('hint').hidden=view==='time'; $('legend').hidden=view==='time'; $('mode').hidden=view==='time'; $('timeline').hidden=view==='map';
+    $('view').textContent=viewText();
+    paint();
+  };
+  const linkKey=(a,b)=>[a,b].sort().join('__');
+
+  /* ---- drawer ---- */
+  const drawer=$('drawer');
+  function openDrawer(){
+    const n=notes.get(selected); if(!n){drawer.hidden=true;return}
+    drawer.hidden=false;
+    $('f-label').value=lang==='en'?(n.label_en||''):(n.label||''); $('f-text').value=lang==='en'?(n.text_en||''):(n.text||''); $('f-group').value=n.group||'gen'; $('f-status').value=n.status||'new';
+    $('f-source').value=n.source||''; $('f-session').value=String(n.session||0);
+    ['f-label','f-text','f-group','f-status','f-source','f-session','b-link','b-unpin','b-del'].forEach(i=>$(i).disabled=!canWrite);
+    $('b-unpin').disabled=!canWrite||n.fx==null;
+    $('b-link').textContent=linkFrom===selected?L('בטל חיבור','Cancel linking'):L('חבר לבועה אחרת','Link to another bubble');
+    renderLinks();
+  }
+  function renderLinks(){
+    const box=$('links'); box.textContent='';
+    const mine=[...links.values()].filter(l=>l.a===selected||l.b===selected);
+    $('links-title').textContent=mine.length?(canWrite?L('קשרים (לחיצה מסירה קשר)','Links (click to remove)'):L('קשרים','Links')):L('אין קשרים עדיין','No links yet');
+    for(const l of mine){
+      const other=notes.get(l.a===selected?l.b:l.a); if(!other) continue;
+      const b=document.createElement('button'); b.type='button'; b.textContent=lbl(other)||L('ללא כותרת','Untitled'); b.style.setProperty('--cc',gv(other.group));
+      b.disabled=!canWrite; b.onclick=()=>removeLink(l.a,l.b); box.appendChild(b);
+    }
+  }
+  function select(id){
+    selected=id;
+    for(const i of els.keys()) syncEl(i);
+    paint(); openDrawer();
+  }
+  function activate(id){
+    if(linkFrom&&linkFrom!==id){ toggleLink(linkFrom,id); linkFrom=null; select(id); return; }
+    select(id);
+  }
+
+  /* ---- writes ---- */
+  async function guard(p){
+    try{ await p; setStatus(''); }
+    catch(e){
+      if(/wrong key/i.test((e&&e.message)||'')){ setWrite(false); MH.store.del(KEYSTORE); key=''; setStatus(L('מפתח העריכה לא התקבל, התצוגה היא לקריאה בלבד.','The edit key was refused, read-only view.')); }
+      else setStatus(L('השמירה נכשלה, נסה שוב.','Saving failed, please try again.'));
+    }
+  }
+  const noteDoc=n=>{const o={kind:n.kind||'note',label:n.label||'',text:n.text||'',label_en:n.label_en||'',text_en:n.text_en||'',group:n.group||'gen',status:n.status||'new',source:n.source||'',session:n.session||0,seq:n.seq==null?0:n.seq}; if(n.fx!=null){o.fx=n.fx;o.fy=n.fy;} if(n.order!=null)o.order=n.order; return o;};
+  const timers={};
+  function saveSoon(id){clearTimeout(timers[id]);stamp++;timers[id]=setTimeout(()=>{delete timers[id];const n=notes.get(id);if(n&&db)guard(db.doc('notes/'+id).set(noteDoc(n)));},500);}
+  function edit(field,val){
+    const n=notes.get(selected); if(!n||!canWrite) return;
+    n[field]=val; syncEl(selected); if(field==='group'||field.startsWith('label')){layoutTree();reheat(0.5);} paint(); saveSoon(selected);
+  }
+  $('f-label').addEventListener('input',e=>edit(lang==='en'?'label_en':'label',e.target.value));
+  $('f-text').addEventListener('input',e=>edit(lang==='en'?'text_en':'text',e.target.value));
+  $('f-group').addEventListener('change',e=>{edit('group',e.target.value);});
+  $('f-status').addEventListener('change',e=>edit('status',e.target.value));
+  $('f-source').addEventListener('input',e=>edit('source',e.target.value));
+  $('f-session').addEventListener('change',e=>{const n=notes.get(selected); if(n) n.seq=9999; edit('session',Number(e.target.value));});
+  $('b-close').onclick=()=>{selected=null;linkFrom=null;drawer.hidden=true;for(const i of els.keys())syncEl(i);paint();};
+  $('b-link').onclick=()=>{linkFrom=linkFrom===selected?null:selected;setStatus(linkFrom?L('לחץ על בועה אחרת כדי לחבר (או לנתק)','Click another bubble to link (or unlink)'):'');for(const i of els.keys())syncEl(i);paint();openDrawer();};
+  $('b-unpin').onclick=()=>{const n=notes.get(selected);if(!n)return;delete n.fx;delete n.fy;syncEl(selected);reheat(0.7);if(db)guard(db.doc('notes/'+selected).set(noteDoc(n)));openDrawer();};
+  $('b-del').onclick=async()=>{
+    const id=selected,n=notes.get(id); if(!n||!db||!canWrite) return;
+    if(!$('b-del').dataset.armed){ $('b-del').dataset.armed='1'; $('b-del').textContent=L('לחץ שוב למחיקה','Click again to delete'); setTimeout(()=>{delete $('b-del').dataset.armed;$('b-del').textContent=L('מחק בועה','Delete bubble');},2500); return; }
+    delete $('b-del').dataset.armed; $('b-del').textContent=L('מחק בועה','Delete bubble');
+    clearTimeout(timers[id]); delete timers[id];
+    $('b-close').click();
+    await guard(db.doc('notes/'+id).delete());
+  };
+  $('add').onclick=async()=>{
+    if(!db||!canWrite){setStatus(L('אין הרשאת כתיבה.','No write permission.'));return}
+    const g=selected&&notes.get(selected)?notes.get(selected).group:(filter||'gen');
+    const ref=db.collection('notes').doc();
+    const n={kind:'note',label:'הערה חדשה',label_en:'New note',text:'',group:g,status:'new',order:Date.now()};
+    const p=guard(ref.set(noteDoc(n)));
+    select(ref.id); $('f-label').focus(); $('f-label').select();
+    await p;
+  };
+  function toggleLink(a,b){
+    if(!db||!canWrite) return; const k=linkKey(a,b);
+    if(links.has(k)) removeLink(a,b); else { const [x,y]=[a,b].sort(); guard(db.doc('links/'+k).set({a:x,b:y})); }
+    setStatus('');
+  }
+  function removeLink(a,b){ if(db&&canWrite) guard(db.doc('links/'+linkKey(a,b)).delete()); }
+
+  /* ---- dragging ---- */
+  function bindDrag(e,id){
+    let sx,sy,moved,sp;
+    e.addEventListener('pointerdown',ev=>{
+      if(ev.button!==0) return; const n=notes.get(id); if(!n) return;
+      e.setPointerCapture(ev.pointerId); sx=ev.clientX;sy=ev.clientY;moved=false;
+      const r=stage.getBoundingClientRect(); sp={ox:n.x-(ev.clientX-r.left),oy:n.y-(ev.clientY-r.top)};
+      n.drag=true; e.style.cursor='grabbing';
+    });
+    e.addEventListener('pointermove',ev=>{
+      const n=notes.get(id); if(!n||!n.drag) return;
+      if(!moved&&Math.hypot(ev.clientX-sx,ev.clientY-sy)<5) return; moved=true;
+      const r=stage.getBoundingClientRect();
+      n.x=Math.min(W-n.r,Math.max(n.r,ev.clientX-r.left+sp.ox)); n.y=Math.min(H-n.r,Math.max(n.r,ev.clientY-r.top+sp.oy));
+      n.vx=n.vy=0; place(); reheat(0.35);
+    });
+    const end=ev=>{
+      const n=notes.get(id); if(!n||!n.drag) return; n.drag=false; e.style.cursor='';
+      if(moved){ if(canWrite&&db){n.fx=n.x/W;n.fy=n.y/H;syncEl(id);guard(db.doc('notes/'+id).set(noteDoc(n)));} }
+      else activate(id);
+    };
+    e.addEventListener('pointerup',end); e.addEventListener('pointercancel',end);
+  }
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&linkFrom){linkFrom=null;setStatus('');for(const i of els.keys())syncEl(i);paint();if(selected)openDrawer();}});
+
+  $('mode').onclick=()=>{
+    mode=mode==='tree'?'free':'tree';
+    $('mode').textContent=modeText();
+    layoutTree(); reheat(1);
+  };
+
+  const modeText=()=>mode==='tree'?L('פריסה: מקובצת לפי מטרה (לחץ לחופשית)','Layout: grouped by goal (click for free)'):L('פריסה: חופשית (לחץ לקיבוץ לפי מטרה)','Layout: free (click to group by goal)');
+  const viewText=()=>view==='map'?L('תצוגה: מפה (לחץ לסדר השיעור)','View: map (click for lesson order)'):L('תצוגה: סדר השיעור (לחץ למפה)','View: lesson order (click for map)');
+  const lab=(id,t)=>{const f=$(id).parentNode.firstChild; if(f&&f.nodeType===3) f.nodeValue=t+'\n      ';};
+  function applyLang(){
+    const w=document.querySelector('.wrap'); w.dir=lang==='en'?'ltr':'rtl'; w.lang=lang;
+    document.title=L('מפת השיעור','Lesson map');
+    $('ttl').textContent=L('מפת השיעור','Lesson map');
+    $('sub').textContent=L('Jupiter Rising · כל הערה היא בועה, וקווים מראים מה קשור למה','Jupiter Rising · every note is a bubble, lines show what relates to what');
+    $('hint').textContent=canWrite?L('גרור בועה כדי לנעוץ אותה במקום · לחיצה פותחת עריכה','Drag a bubble to pin it in place · click to edit'):L('לחיצה על בועה מציגה את הפרטים · עריכה דורשת מפתח','Click a bubble to see its details · editing needs the key');
+    $('add').textContent=L('+ בועה חדשה','+ New bubble');
+    $('lock').textContent=canWrite?L('נעל עריכה','Lock editing'):L('פתח לעריכה','Unlock editing');
+    $('key').placeholder=L('מפתח עריכה','Edit key'); $('key').setAttribute('aria-label',L('מפתח עריכה','Edit key'));
+    $('key-ok').textContent=L('אישור','OK');
+    drawer.setAttribute('aria-label',canWrite?L('עריכת בועה','Edit bubble'):L('פרטי בועה','Bubble details'));
+    $('b-unpin').textContent=L('שחרר נעיצה','Unpin');
+    $('b-close').textContent=L('סגור','Close');
+    $('b-del').textContent=L('מחק בועה','Delete bubble');
+    lab('f-label',L('כותרת קצרה (מופיעה בבועה)','Short title (shown in the bubble)'));
+    lab('f-text',L('פירוט','Details'));
+    lab('f-group',L('נושא','Topic'));
+    lab('f-status',L('סטטוס','Status'));
+    lab('f-source',L('מקור במאמר (סעיף, איור או טבלה)','Source in the paper (section, figure or table)'));
+    lab('f-session',L('מקום בשיעור','Place in the lesson'));
+    const so=$('f-status').options; so[0].text=L('חדש','New'); so[1].text=L('הוצע, מחכה לאישור','Proposed, awaiting approval'); so[2].text=L('סגור','Done');
+    const se=$('f-session').options; se[0].text=L('לא שובץ','Unassigned'); se[1].text=L('מפגש 1','Session 1'); se[2].text=L('מפגש 2','Session 2'); se[3].text=L('שיעור בית','Home session');
+    document.querySelectorAll('[data-g]').forEach(x=>{x.textContent=gname(x.dataset.g);});
+    legend.setAttribute('aria-label',L('סינון לפי נושא','Filter by topic'));
+    $('lang').textContent=lang==='en'?'עברית':'English';
+    $('mode').textContent=modeText(); $('view').textContent=viewText();
+    for(const i of els.keys()) syncEl(i);
+    paint(); if(selected) openDrawer();
+  }
+  $('lang').onclick=()=>{lang=lang==='en'?'he':'en'; applyLang();};
+
+  /* ---- sizing ---- */
+  function measure(){
+    const nw=stage.clientWidth, nh=stage.clientHeight;
+    if(!nw||!nh) return;
+    if(nw!==W||nh!==H){ W=nw; H=nh; for(const n of notes.values()) if(n.fx!=null){n.x=n.fx*W;n.y=n.fy*H;} layoutTree(); reheat(0.8); }
+  }
+  new ResizeObserver(measure).observe(stage); measure();
+
+  /* ---- data: Supabase (see supabase/lesson_map.sql). Reading is open, every write carries the edit key. ---- */
+  const KEYSTORE='lesson-map:key';
+  let key=MH.store.get(KEYSTORE)||'', stamp=0, busy=0, lastPayload='';
+  const pending=()=>busy>0||Object.keys(timers).length>0;
+  function send(fn,args){
+    stamp++; busy++;
+    return MH.rpc(fn,Object.assign({p_key:key},args)).finally(()=>{busy--;stamp++;});
+  }
+  function upsertNote(id,data){
+    const old=notes.get(id);
+    const n=Object.assign({},data,{x:old?.x,y:old?.y,vx:old?.vx||0,vy:old?.vy||0,drag:old?.drag});
+    if(n.fx==null){delete n.fx;delete n.fy;}
+    if(old&&old.drag){n.fx=old.fx;n.fy=old.fy;}
+    notes.set(id,n); syncEl(id);
+  }
+  function dropNote(id){
+    notes.delete(id); syncEl(id);
+    if(selected===id){selected=null;drawer.hidden=true;}
+    if(linkFrom===id) linkFrom=null;
+  }
+  function afterNotes(){
+    for(const id of links.keys()) syncLine(id);
+    layoutTree(); paint(); reheat(0.7);
+    if(selected&&!drawer.contains(document.activeElement)) openDrawer();
+  }
+  function afterLinks(){
+    paint(); reheat(0.6); if(selected&&!drawer.contains(document.activeElement)) renderLinks();
+  }
+  function applyAll(d){
+    const ns=d.notes||{}, ls=d.links||{};
+    for(const id of Object.keys(ns)) upsertNote(id,ns[id]);
+    for(const id of [...notes.keys()]) if(!(id in ns)) dropNote(id);
+    for(const id of Object.keys(ls)){links.set(id,ls[id]);}
+    for(const id of [...links.keys()]) if(!(id in ls)) links.delete(id);
+    for(const id of new Set([...links.keys(),...lineEls.keys()])) syncLine(id);
+    afterNotes(); afterLinks();
+  }
+  /* same shape the page used before (doc().set / doc().delete), now applied locally first and then sent to Supabase */
+  const rid=()=>{const c='abcdefghijklmnopqrstuvwxyz0123456789';let s='';for(const v of crypto.getRandomValues(new Uint8Array(20)))s+=c[v%36];return s;};
+  const store={
+    doc(path){
+      const i=path.indexOf('/'), col=path.slice(0,i), id=path.slice(i+1);
+      return {id,
+        set(data){
+          if(col==='notes'){
+            if(!notes.has(id)){upsertNote(id,data);afterNotes();}
+            return send('map_set_note',{p_id:id,p_data:data});
+          }
+          links.set(id,data); syncLine(id); afterLinks();
+          return send('map_set_link',{p_id:id,p_a:data.a,p_b:data.b});
+        },
+        delete(){
+          if(col==='notes'){
+            for(const [lid,l] of [...links]) if(l.a===id||l.b===id){links.delete(lid);syncLine(lid);}
+            dropNote(id); afterNotes();
+            return send('map_delete_note',{p_id:id});
+          }
+          links.delete(id); syncLine(id); afterLinks();
+          return send('map_delete_link',{p_id:id});
+        }};
+    },
+    collection(col){ return {doc:()=>store.doc(col+'/'+rid())}; }
+  };
+
+  let failed=0;
+  async function pull(){
+    if(pending()||document.hidden) return;
+    if([...notes.values()].some(n=>n.drag)) return;
+    const s=stamp; let d;
+    try{ d=await MH.rpc('map_get'); if(failed>2) setStatus(''); failed=0; }
+    catch(e){ failed++; if(!loaded){emptyEl.hidden=false;emptyEl.textContent=L('הקריאה מהנתונים נכשלה: ','Reading the data failed: ')+((e&&e.message)||'');} else if(failed>2) setStatus(L('אין חיבור לנתונים, ממשיך לנסות…','Cannot reach the data, still trying…')); return; }
+    if(s!==stamp||pending()) return;
+    const raw=JSON.stringify(d);
+    if(loaded&&raw===lastPayload) return;
+    lastPayload=raw; loaded=true;
+    applyAll(d||{});
+  }
+
+  function setWrite(v){
+    canWrite=v;
+    $('add').hidden=!v; $('keybox').hidden=true;
+    if(!v) linkFrom=null;
+    applyLang();
+  }
+  $('lock').onclick=()=>{
+    if(canWrite){ key=''; MH.store.del(KEYSTORE); setWrite(false); setStatus(''); return; }
+    $('keybox').hidden=!$('keybox').hidden; if(!$('keybox').hidden) $('key').focus();
+  };
+  async function tryKey(k,quiet){
+    let ok=false;
+    try{ ok=await MH.rpc('map_check_key',{p_key:k})===true; }
+    catch(e){ if(!quiet) setStatus(L('בדיקת המפתח נכשלה: ','Checking the key failed: ')+((e&&e.message)||'')); return false; }
+    if(ok){ key=k; MH.store.set(KEYSTORE,k); setWrite(true); if(!quiet) setStatus(''); }
+    else { if(key===k){key='';MH.store.del(KEYSTORE);} if(!quiet) setStatus(L('מפתח שגוי.','Wrong key.')); }
+    return ok;
+  }
+  $('keybox').addEventListener('submit',async e=>{
+    e.preventDefault(); const k=$('key').value.trim(); if(!k) return;
+    $('key-ok').disabled=true; const ok=await tryKey(k,false); $('key-ok').disabled=false;
+    if(ok) $('key').value='';
+  });
+
+  applyLang();
+  if(!MH.configured){ emptyEl.textContent=L('האתר עדיין לא מחובר למסד הנתונים (ראה js/config.js).','The site is not connected to its database yet (see js/config.js).'); $('lock').disabled=true; return; }
+  db=store;
+  if(key) tryKey(key,true);
+  pull();
+  setInterval(pull,MH.refreshMs);
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) pull(); });
+})();
+</script>
+</body>
+</html>

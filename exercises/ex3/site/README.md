@@ -43,6 +43,8 @@ every switch as a button, so nothing depends on tapping a small box on the map.
 | `public/js/homework.js`, `homework-form.js` | Part C: the diagram of the Firepath parts and the answer form |
 | `public/instructor.html`, `js/instructor.js` | Class results |
 | `supabase/submissions.sql`, `homework.sql` | Tables and functions (run once in the Supabase SQL Editor) |
+| `public/lesson-map.html` | Lesson map: the plan of the class as bubbles and links (not linked from the game) |
+| `supabase/lesson_map.sql` | Tables and functions of the lesson map |
 | `tools/gen_puzzle.py` | Generates `puzzle.js` from the cluster model |
 
 The answer key is inside `puzzle.js`, so a student who reads the source can see it. That is fine for an ungraded exercise.
@@ -76,6 +78,18 @@ under `/preview/` for review before merging.
   Question 2, and one sortable Students table that matches the game and questions 1-3 by email and downloads as CSV.
   It can reload itself every 30 seconds, and it remembers the key for the open tab only.
 - `public/homework.html` only redirects to the game.
+
+## Lesson map
+
+`public/lesson-map.html` is the plan of the class: every note is a bubble, grouped by goal, with links between
+related notes and a second view that orders the notes by session. It keeps its data in the same Supabase project.
+
+- Run `supabase/lesson_map.sql` in the Supabase SQL Editor (after `submissions.sql`, safe to run again).
+- Anyone with the address can read the map. Editing needs the edit key: the `map_key` row in `settings`
+  (set it once with the `insert` in the comment of `lesson_map.sql`). **Unlock editing** on the page asks for it
+  and keeps it in that browser until **Lock editing**.
+- The page reloads the map every `REFRESH_SECONDS`, so two people editing see each other's changes after a few seconds.
+  The last save of a bubble wins.
 
 ## In class (suggested)
 
