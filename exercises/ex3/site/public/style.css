@@ -1051,13 +1051,10 @@ th[aria-sort="ascending"] .sortb, th[aria-sort="descending"] .sortb { color: var
 .join input[type="checkbox"] { flex: 0 0 auto; padding: 0; min-width: 0; }
 .join .auto { font-weight: 500; white-space: nowrap; }
 
-/* intro: "What to do", one row per section below, with the same badges */
-.brief .iv-k { font: 600 0.72rem var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-top: 4px; }
-.intro-todo { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; color: var(--ink); font-size: 0.92rem; }
-.intro-todo li { display: flex; align-items: flex-start; gap: 10px; }
-.intro-todo .bpart-n { width: 20px; height: 20px; border-radius: 5px; font-size: 0.72rem; margin-top: 1px; }
-.intro-todo a { color: var(--accent); font-weight: 600; text-underline-offset: 3px; }
-.brief .fine.after { color: var(--muted); font-size: 0.84rem; margin-top: 2px; }
+/* intro: the demo video callout box */
+.brief .intro-video { background: var(--glow); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; color: var(--ink); font-size: 0.95rem; }
+.intro-video .iv-k { font: 600 0.72rem var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-right: 6px; }
+.intro-video a { color: var(--accent); font-weight: 600; text-underline-offset: 3px; }
 
 /* the inspector scrolls inside, next to the page scrollbar: keep its own bar thin and quiet */
 .inspector { scrollbar-width: thin; scrollbar-color: var(--line) transparent; scrollbar-gutter: stable; }
