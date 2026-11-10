@@ -111,6 +111,8 @@
     $("collectBtn").disabled = collecting;
     $("collectBtn").textContent = collecting ? "Collecting..." : collected ? "Collect again" : "Collect link state from all switches";
     $("lsd").hidden = !collected || collecting;
+    $("s0k").textContent = collected ? "Step 1 · Collect · done" : "Step 1 · Collect";
+    $("s0h").textContent = collected ? "Link state collected" : "Collect the state of every link";
     if (!collected) return;
     const down = T.links.filter(l => endState(l.a) !== "UP" || endState(l.b) !== "UP");
     $("lsdSum").innerHTML = "<b>15 of 16 switches answered.</b> T7 did not answer. " + (T.links.length - down.length) + " links up, " + down.length + " down.";
@@ -497,7 +499,7 @@
   $("nextBtn").addEventListener("click", () => goStep(step + 1));
   // Parts A, B and C start collapsed. The page remembers which ones the student opened,
   // and any jump into a part (a #partX link, the Next button after Explain, "Read it in the paper") opens it first.
-  const OPEN_KEY = "mh-open-v1", PARTS_IDS = ["paperBox", "partB", "partC"];
+  const OPEN_KEY = "mh-open-v1", PARTS_IDS = ["videoBox", "paperBox", "partB", "partC"];
   let openIds = []; try { openIds = JSON.parse(store.get(OPEN_KEY) || "[]") || []; } catch (e) { openIds = []; }
   PARTS_IDS.forEach(id => {
     const p = $(id); if (openIds.indexOf(id) >= 0) p.open = true;

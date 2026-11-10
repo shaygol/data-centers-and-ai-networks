@@ -1,5 +1,5 @@
-"""Generate site/js/puzzle.js (the puzzle data) from the cluster model.
-Run from exercises/ex3:  python3 tools/gen_puzzle.py > site/js/puzzle.js
+"""Generate public/js/puzzle.js (the puzzle data) from the cluster model.
+Run from exercises/ex3/site:  python3 tools/gen_puzzle.py > public/js/puzzle.js
 The model below is the same as the one that defined the shared version of the exercise.
 NOTE: the answer key is inside the generated file. That is fine: the exercise is ungraded."""
 import json, io, sys, contextlib, runpy, os

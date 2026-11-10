@@ -23,7 +23,7 @@ revoke all on submissions from anon, authenticated;
 create or replace function submit_work(p_id text, p_nick text, p_diag jsonb, p_drained jsonb, p_answers jsonb)
 returns void language plpgsql security definer set search_path = public as $$
 begin
-  -- Submit closes at the deadline shown on the page (keep in sync with DEADLINE in site/js/config.js)
+  -- Submit closes at the deadline shown on the page (keep in sync with DEADLINE in public/js/config.js)
   if now() > timestamptz '2026-11-15 13:00:00+02' then raise exception 'Submission closed on Sunday, Nov 15, at 13:00.'; end if;
   if p_id is null or length(p_id) < 8 or length(p_id) > 64 then raise exception 'bad id'; end if;
   if length(coalesce(p_diag::text, '')) > 20000 or length(coalesce(p_drained::text, '')) > 5000 or length(coalesce(p_answers::text, '')) > 1000 then

@@ -25,15 +25,18 @@
 <main class="console-main">
   <header class="brief" id="brief">
     <div class="brief-main">
-      <p class="lead"><b>It&rsquo;s <span id="nowIL">03:12</span> and JR-16 is dropping packets.</b> You&rsquo;re on call. Your only tool is the check that Google&rsquo;s Jupiter switches run on their own cables.</p>
-      <p class="fine"><b>The goal of this homework</b> is to get familiar with <b>software-defined networking (SDN)</b> through our paper, <i>Jupiter Rising</i>. In SDN, the decisions about where traffic goes are taken out of the individual switches and made by software that sees the whole network. Google did this in Jupiter with its own control plane, <b>Firepath</b>. In the game you act as Firepath&rsquo;s master: you collect what every switch reports, find what is broken and route around it. Then you place Firepath&rsquo;s parts on the SDN planes.</p>
-      <p class="intro-video"><span class="iv-k">Before you start</span> Watch this short video on SDN: <a href="https://www.youtube.com/watch?v=SKRuEyxkGlM" target="_blank" rel="noopener">Software Defined Networking (SDN) | Explained with Animation</a>.</p>
-      <p class="fine">Three parts, in order:<br>
-        <b>A</b> Read four short passages.<br>
-        <b>B</b> Hunt the faults.<br>
-        <b>C</b> Place Firepath, Google&rsquo;s control plane, on the SDN planes.<br>
-        One Submit, at the bottom of the page, sends B and C. After the deadline this page shows which faults you found, and we go through the answers in class.
-      </p>
+      <p class="lead"><b>It&rsquo;s <span id="nowIL">03:12</span> and JR-16 is dropping packets.</b> You&rsquo;re on call.</p>
+      <p class="fine"><b>The goal of this homework</b> is to get familiar with <b>software-defined networking (SDN)</b> through our paper, <i>Jupiter Rising</i>. In SDN, the decisions about where traffic goes are taken out of the individual switches and made by software that sees the whole network. Google did this in Jupiter with its own control plane, <b>Firepath</b>. In the game you act as Firepath&rsquo;s master: you collect what every switch reports, find what is broken and route around it.</p>
+      <p class="iv-k">What to do</p>
+      <!-- same badges as the sections below, so the list reads as a table of contents -->
+      <ol class="intro-todo">
+        <li><span class="bpart-n" aria-hidden="true">&#9654;</span><span>Watch the <a href="#videoBox">5-minute demo video</a> first.</span></li>
+        <li><span class="bpart-n" aria-hidden="true">A</span><span>Read four short passages.</span></li>
+        <li><span class="bpart-n" aria-hidden="true">B</span><span>Play the game: find the five hidden faults.</span></li>
+        <li><span class="bpart-n" aria-hidden="true">C</span><span>Answer questions 1&ndash;3: place Firepath on the SDN planes.</span></li>
+        <li><span class="bpart-n" aria-hidden="true">&#10003;</span><span>Submit once, at the bottom of the page. It sends B and C.</span></li>
+      </ol>
+      <p class="fine after">After the deadline this page shows which faults you found, and we go through the answers in class.</p>
     </div>
     <!-- Decorative only: the five "?" are not placed on the network, so the picture gives nothing away about where the faults are. -->
     <figure class="brief-pic" aria-hidden="true">
@@ -41,6 +44,19 @@
       <figcaption><span class="q5"><i>?</i><i>?</i><i>?</i><i>?</i><i>?</i></span>five hidden faults</figcaption>
     </figure>
   </header>
+
+  <details class="part" id="videoBox">
+    <summary class="part-head"><span class="bpart-n" aria-hidden="true">&#9654;</span><h2 id="partVt">Demo Video</h2><span class="part-sub">5-minute walkthrough of Miswire Hunt</span><span class="part-chev" aria-hidden="true"></span></summary>
+    <div class="part-body">
+      <p>Watch a short walkthrough explaining the JR-16 Clos topology, how Neighbor Discovery reveals miswirings, and how to inspect switches and drain faulty links:</p>
+      <div class="video-wrap">
+        <video controls playsinline preload="metadata" class="demo-video">
+          <source src="wire-hunter.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+  </details>
 
   <details class="part" id="paperBox">
     <summary class="part-head"><span class="bpart-n" aria-hidden="true">A</span><h2 id="partAt">Read</h2><span class="part-sub">Four passages of the paper, about 900 words</span><span class="part-chev" aria-hidden="true"></span></summary>
@@ -82,9 +98,8 @@
   <details class="part" id="partB">
     <summary class="part-head"><span class="bpart-n" aria-hidden="true">B</span><h2 id="partBt">Play the game</h2><span class="part-sub">Find the five hidden faults</span><span class="part-chev" aria-hidden="true"></span></summary>
     <div class="part-in">
-      <section class="howto" aria-labelledby="howtoT">
-        <h3 id="howtoT">How to play</h3>
-        <p><b>What the game is.</b> JR-16 is a small Jupiter-style Clos fabric: 4 spine switches on top, 4 aggregation switches in the middle and 8 ToR (top-of-rack) switches at the bottom, one cable per connected pair. The map shows <b>the plan</b>, the cables that <i>should</i> exist. <b>Five faults</b> are hidden in the real network: a cable can be down, plugged into the wrong port, work in one direction only, or have a high error rate, and a switch can stop answering.</p>
+      <details class="howto">
+        <summary><h3>How to play</h3><span class="howto-sub">text version of the demo video</span></summary>
         <p><b>Your job.</b> Find all five faults, take the broken links out of routing without draining links that work, and explain two of the faults.</p>
         <ol class="howto-steps">
           <li><b>Collect.</b> Press the button. Every switch reports which of its ports are up, and you get the list of links that are down. Down tells you <i>that</i> a link is broken, not <i>why</i>, and some faults leave the link up.</li>
@@ -93,7 +108,7 @@
           <li><b>Explain.</b> Answer two multiple-choice questions on the cause of two faults.</li>
         </ol>
         <p class="fine"><b>Rules.</b> Spines are on top, ToRs at the bottom. A cable has two ends, and a fault can look different from each one, so check both. A switch that does not answer has no port table: diagnose it from its neighbors&rsquo; ports. Draining a working link costs capacity, so drain only what you found broken. The game gives no hints about what is right until the deadline. Your work is saved in this browser and sent with the one Submit at the bottom of the page. There is no grade. It takes about 15&ndash;20 minutes.</p>
-      </section>
+      </details>
       <nav class="missions" id="missions" aria-label="Mission steps">
         <button type="button" class="ms" data-step="0"><span class="ms-n">1</span><span class="ms-t">Collect</span><span class="ms-v" id="m0v">not yet</span></button>
         <button type="button" class="ms" data-step="1"><span class="ms-n">2</span><span class="ms-t">Inspect</span><span class="ms-v" id="m1v">0 / 62</span></button>
@@ -118,8 +133,8 @@
       <aside class="inspector" id="inspector">
         <!-- step 0: collect -->
         <div class="step" id="step0" hidden>
-          <p class="step-k">Step 1 · Collect</p>
-          <h3>Collect the state of every link</h3>
+          <p class="step-k" id="s0k">Step 1 · Collect</p>
+          <h3 id="s0h">Collect the state of every link</h3>
           <p>Firepath&rsquo;s master does not see cables. It learns the state of every link from the switches themselves: each switch reports over the control network (<b>CPN</b>) which of its ports are up (Section 5.2.2). A port is up only when it is both PHY UP and ND UP (Section 5.2.1).</p>
           <div class="row"><button class="btn primary" id="collectBtn" type="button">Collect link state from all switches</button></div>
           <div id="lsd" hidden>

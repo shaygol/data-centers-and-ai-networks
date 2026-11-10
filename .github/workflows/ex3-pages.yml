@@ -3,7 +3,7 @@ name: Deploy ex3 (Miswire Hunt) site
 on:
   push:
     branches: [main, dev]
-    paths: ["exercises/ex3/site/**", ".github/workflows/ex3-pages.yml"]
+    paths: ["exercises/ex3/site/public/**", ".github/workflows/ex3-pages.yml"]
   workflow_dispatch:
 
 permissions:
@@ -34,8 +34,11 @@ jobs:
       - name: Assemble site
         run: |
           mkdir -p _site/preview
-          cp -r main-src/exercises/ex3/site/. _site/
-          cp -r this-src/exercises/ex3/site/. _site/preview/
+          # The site lives in exercises/ex3/site/public. A branch that still has the old layout
+          # (everything directly in exercises/ex3/site) is published from there.
+          pub() { if [ -d "$1/exercises/ex3/site/public" ]; then echo "$1/exercises/ex3/site/public"; else echo "$1/exercises/ex3/site"; fi; }
+          cp -r "$(pub main-src)/." _site/
+          cp -r "$(pub this-src)/." _site/preview/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
