@@ -1033,3 +1033,16 @@ th[aria-sort="ascending"] .sortb, th[aria-sort="descending"] .sortb { color: var
 /* the reload checkbox sits in .join, whose rule stretches every input; keep it small and its label on one line */
 .join input[type="checkbox"] { flex: 0 0 auto; padding: 0; min-width: 0; }
 .join .auto { font-weight: 500; white-space: nowrap; }
+
+/* intro: the SDN video to watch before starting */
+.brief .intro-video { background: var(--glow); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; color: var(--ink); font-size: 0.95rem; }
+.intro-video .iv-k { font: 600 0.72rem var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-right: 6px; }
+.intro-video a { color: var(--accent); font-weight: 600; }
+
+/* Part B: how to play */
+.howto { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 16px 18px; color: var(--soft); max-width: 85ch; }
+.howto h3 { color: var(--ink); margin-bottom: 8px; }
+.howto b { color: var(--ink); }
+.howto-steps { margin: 4px 0 12px; padding-left: 1.4em; }
+.howto-steps li { margin: 0 0 6px; }
+.howto .fine { margin: 0; color: var(--soft); }

@@ -3,11 +3,12 @@
 A single-player, browser-based homework about **Neighbor Discovery and centralized configuration** in
 *Jupiter Rising* (SIGCOMM 2015, Sections 5.2, 5.2.1, 5.2.2 and 5.3.1). About 15-20 minutes for the game and 15 for questions 1-3, no grade.
 
-The page has three parts and one Submit:
+The intro states the goal (get familiar with SDN through *Jupiter Rising*) and asks students to watch a short SDN
+video before starting (https://www.youtube.com/watch?v=SKRuEyxkGlM). The page then has three parts and one Submit:
 
 - **A. Read**: four clippings of the paper (about 900 words), cut from the SIGCOMM PDF with our highlights (`site/img/paper-*.png`).
 - **B. Play the game**: the student sees **JR-16**, a 16-switch Clos fabric (4 spine, 4 aggregation in two
-  blocks, 8 ToR, one link per connected pair) with five hidden faults. Four steps:
+  blocks, 8 ToR, one link per connected pair) with five hidden faults. A **How to play** box at the top of Part B says what the game is, the goal, the steps and the rules. Four steps:
   1. **Collect**: the Firepath master gathers link state from every switch over the CPN.
   2. **Inspect**: open a switch, probe its ports (plan from the cluster config vs. what Neighbor
      Discovery heard, PHY state, error rate, whether the peer hears them) and give each port a diagnosis.

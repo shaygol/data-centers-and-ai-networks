@@ -26,6 +26,8 @@
   <header class="brief" id="brief">
     <div class="brief-main">
       <p class="lead"><b>It&rsquo;s <span id="nowIL">03:12</span> and JR-16 is dropping packets.</b> You&rsquo;re on call. Your only tool is the check that Google&rsquo;s Jupiter switches run on their own cables.</p>
+      <p class="fine"><b>The goal of this homework</b> is to get familiar with <b>software-defined networking (SDN)</b> through our paper, <i>Jupiter Rising</i>. In SDN, the decisions about where traffic goes are taken out of the individual switches and made by software that sees the whole network. Google did this in Jupiter with its own control plane, <b>Firepath</b>. In the game you act as Firepath&rsquo;s master: you collect what every switch reports, find what is broken and route around it. Then you place Firepath&rsquo;s parts on the SDN planes.</p>
+      <p class="intro-video"><span class="iv-k">Before you start</span> Watch this short video on SDN: <a href="https://www.youtube.com/watch?v=SKRuEyxkGlM" target="_blank" rel="noopener">Software Defined Networking (SDN) | Explained with Animation</a>.</p>
       <p class="fine">Three parts, in order:<br>
         <b>A</b> Read four short passages.<br>
         <b>B</b> Hunt the faults.<br>
@@ -80,6 +82,18 @@
   <details class="part" id="partB">
     <summary class="part-head"><span class="bpart-n" aria-hidden="true">B</span><h2 id="partBt">Play the game</h2><span class="part-sub">Find the five hidden faults</span><span class="part-chev" aria-hidden="true"></span></summary>
     <div class="part-in">
+      <section class="howto" aria-labelledby="howtoT">
+        <h3 id="howtoT">How to play</h3>
+        <p><b>What the game is.</b> JR-16 is a small Jupiter-style Clos fabric: 4 spine switches on top, 4 aggregation switches in the middle and 8 ToR (top-of-rack) switches at the bottom, one cable per connected pair. The map shows <b>the plan</b>, the cables that <i>should</i> exist. <b>Five faults</b> are hidden in the real network: a cable can be down, plugged into the wrong port, work in one direction only, or have a high error rate, and a switch can stop answering.</p>
+        <p><b>Your job.</b> Find all five faults, take the broken links out of routing without draining links that work, and explain two of the faults.</p>
+        <ol class="howto-steps">
+          <li><b>Collect.</b> Press the button. Every switch reports which of its ports are up, and you get the list of links that are down. Down tells you <i>that</i> a link is broken, not <i>why</i>, and some faults leave the link up.</li>
+          <li><b>Inspect.</b> Click a switch on the map, then click each of its ports. You see what Neighbor Discovery found: who answered at the other end, whether the peer hears this switch, the PHY state and the error rate. Give every port a diagnosis (keys 1&ndash;6). Use <i>How to choose</i> under the port if you are unsure.</li>
+          <li><b>Drain.</b> Opens once all 62 ports are diagnosed. Click a cable on the map to drain it (click again to put it back), then press <b>Recompute routes</b> to see how many paths are left and whether any ToR lost its uplinks.</li>
+          <li><b>Explain.</b> Answer two multiple-choice questions on the cause of two faults.</li>
+        </ol>
+        <p class="fine"><b>Rules.</b> Spines are on top, ToRs at the bottom. A cable has two ends, and a fault can look different from each one, so check both. A switch that does not answer has no port table: diagnose it from its neighbors&rsquo; ports. Draining a working link costs capacity, so drain only what you found broken. The game gives no hints about what is right until the deadline. Your work is saved in this browser and sent with the one Submit at the bottom of the page. There is no grade. It takes about 15&ndash;20 minutes.</p>
+      </section>
       <nav class="missions" id="missions" aria-label="Mission steps">
         <button type="button" class="ms" data-step="0"><span class="ms-n">1</span><span class="ms-t">Collect</span><span class="ms-v" id="m0v">not yet</span></button>
         <button type="button" class="ms" data-step="1"><span class="ms-n">2</span><span class="ms-t">Inspect</span><span class="ms-v" id="m1v">0 / 62</span></button>
