@@ -587,7 +587,7 @@
   $("resendNo").addEventListener("click", () => { $("resend").hidden = true; $("submitBtn").focus(); });
 
   async function submitAll(confirmed) {
-    if (closed()) { say("Submission closed on Sunday, Nov 15, at 13:00. Your work is still saved in this browser."); $("submitBtn").disabled = true; return; }
+    if (closed()) { say("Submission closed on Sunday, Nov 22, at 13:00. Your work is still saved in this browser."); $("submitBtn").disabled = true; return; }
     nick = $("nick").value.trim(); persist();
     if (!$("hwName").value.trim()) { say("Enter your name first."); $("hwName").focus(); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nick)) {
@@ -621,7 +621,7 @@
   $("submitBtn").addEventListener("click", () => submitAll(false));
   // the results appear by themselves if the page is open when REVEAL_AT passes
   if (REVEAL && !revealed()) { const t = setInterval(() => { if (revealed()) { clearInterval(t); renderResults(); } }, 30000); }
-  if (closed()) { $("submitBtn").disabled = true; if (!submittedAt) say("Submission closed on Sunday, Nov 15, at 13:00."); }
+  if (closed()) { $("submitBtn").disabled = true; if (!submittedAt) say("Submission closed on Sunday, Nov 22, at 13:00."); }
   document.addEventListener("mh-hw-change", () => { touch(); renderMissions(); renderSubmit(); });
 
   refresh();

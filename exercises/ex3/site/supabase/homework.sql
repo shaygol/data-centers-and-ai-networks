@@ -16,7 +16,7 @@ returns void language plpgsql security definer set search_path = public as $$
 declare e text := lower(trim(coalesce(p_email, '')));
 begin
   -- Submit closes at the deadline shown on the page (keep in sync with DEADLINE in public/js/config.js)
-  if now() > timestamptz '2026-11-15 13:00:00+02' then raise exception 'Submission closed on Sunday, Nov 15, at 13:00.'; end if;
+  if now() > timestamptz '2026-11-22 13:00:00+02' then raise exception 'Submission closed on Sunday, Nov 22, at 13:00.'; end if;
   if e !~'^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$' or length(e) > 254 then raise exception 'bad email'; end if;
   if length(coalesce(p_answers::text, '')) > 20000 then raise exception 'too large'; end if;
   insert into homework_answers(email, name, answers, updated_at)
