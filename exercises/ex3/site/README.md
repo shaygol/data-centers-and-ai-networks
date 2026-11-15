@@ -67,7 +67,7 @@ under `/preview/` for review before merging.
   minute; summed over visits in `localStorage`). It is shown read-only as "Time spent" in the Submit card and
   sent in seconds as `answers.activeSec` of `submit_work`, so there is no database change. `instructor.html`
   shows it in the Students table. It is self-reported, so use it as a hint and not as proof.
-- Submit closes at the deadline: **Sunday, Nov 15, 2026, 13:00** (Israel time). The page disables the
+- Submit closes at the deadline: **Sunday, Nov 22, 2026, 13:00** (Israel time). The page disables the
   button and both SQL functions refuse later calls. To move the deadline, change `DEADLINE` in
   `public/js/config.js` and the timestamp in both `supabase/*.sql` files, then run the SQL again.
 - Run `supabase/submissions.sql` and `supabase/homework.sql` in the Supabase SQL Editor (safe to run again).

@@ -74,7 +74,7 @@
   }
 
   // ---------- homework ----------
-  const DEADLINE = Date.parse((window.MH_CONFIG || {}).DEADLINE || "2026-11-15T13:00:00+02:00");
+  const DEADLINE = Date.parse((window.MH_CONFIG || {}).DEADLINE || "2026-11-22T13:00:00+02:00");
   const PARTS = ["Firepath master", "Firepath client", "Link State Database (LSD)", "Control Plane Network (CPN)", "Neighbor Discovery (ND)", "BGP at the CBRs", "Cluster config", "Forwarding table"];
   const PLANE = { data: "Data", control: "Control", management: "Management", outside: "Outside SDN" };
   function showHomework(rows) {
