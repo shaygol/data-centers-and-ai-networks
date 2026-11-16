@@ -43,6 +43,7 @@ every switch as a button, so nothing depends on tapping a small box on the map.
 | `public/js/homework.js`, `homework-form.js` | Part C: the diagram of the Firepath parts and the answer form |
 | `public/instructor.html`, `js/instructor.js` | Class results |
 | `supabase/submissions.sql`, `homework.sql` | Tables and functions (run once in the Supabase SQL Editor) |
+| `public/lesson.html` | The lesson deck: agenda, passages, labs and both versions of the paper, in one self-contained page (served at `/lesson.html`) |
 | `public/lesson-map.html` | Lesson map: the plan of the class as bubbles and links (not linked from the game) |
 | `supabase/lesson_map.sql` | Tables and functions of the lesson map |
 | `tools/gen_puzzle.py` | Generates `puzzle.js` from the cluster model |
