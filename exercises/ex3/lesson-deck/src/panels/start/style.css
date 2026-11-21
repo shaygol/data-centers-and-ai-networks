@@ -1,0 +1,9 @@
+.panel-start .start-question { margin: 0 0 1.5rem; max-width: 70rem; font-size: clamp(1.7rem, 3.1vw, 3.5rem); font-weight: 700; line-height: 1.16; }
+.panel-start .start-scenario { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.1rem 1.5rem; margin: 0; max-width: 70rem; font-size: clamp(1.15rem, 1.6vw, 1.8rem); }
+.panel-start dt { font-weight: 700; }
+.panel-start dd { margin: 0 0 0.5rem; }
+@media (min-width: 700px) {
+  .panel-start .start-scenario { grid-template-columns: max-content minmax(0, 1fr); }
+}
+.panel-start .start-how { margin: 1.2rem 0 0; max-width: 70rem; font-size: clamp(1.1rem, 1.4vw, 1.6rem); color: var(--ink-soft); }
+.panel-start .start-version { display: inline-block; margin: 0 0 0.8rem; padding: 0.2rem 0.6rem; background: var(--illustration-bg); color: var(--illustration-ink); font: 650 0.9rem var(--font-mono); letter-spacing: 0.04em; }

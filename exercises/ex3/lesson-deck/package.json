@@ -1,0 +1,16 @@
+{
+  "name": "jupiter-rising-labs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:v2": "node scripts/build.mjs --edition v2",
+    "smoke:v2": "node scripts/smoke.mjs --edition v2",
+    "test": "node --test \"src/**/*.test.js\" \"scripts/**/*.test.js\"",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "playwright-core": "1.62.0"
+  }
+}

@@ -1,0 +1,57 @@
+.lab-traffic {
+  --tg-traffic: #0b5cad;
+  --tg-capacity: #b8610a;
+  --tg-whatif: #6b7a88;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .lab-traffic { --tg-traffic: #3a86d4; --tg-capacity: #c8782c; --tg-whatif: #8fa2b3; }
+}
+:root[data-theme='dark'] .lab-traffic { --tg-traffic: #3a86d4; --tg-capacity: #c8782c; --tg-whatif: #8fa2b3; }
+
+.lab-traffic .tg-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.5rem; margin-bottom: 0.6rem; }
+.lab-traffic .tg-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem 2rem; }
+@media (min-width: 1100px) {
+  .lab-traffic .tg-layout { grid-template-columns: minmax(0, 2.2fr) minmax(16rem, 1fr); }
+}
+.lab-traffic .tg-chart-box { min-width: 0; overflow-x: auto; }
+.lab-traffic .tg-chart-title { margin: 0 0 0.2rem; font-weight: 650; }
+.lab-traffic .tg-chart { display: block; width: 100%; min-width: 520px; height: auto; background: var(--surface); }
+.lab-traffic .tg-grid { stroke: var(--line-soft); stroke-width: 1; }
+.lab-traffic .tg-axis { stroke: var(--line); stroke-width: 1.5; }
+.lab-traffic .tg-tick { font: 500 13px var(--font-mono); fill: var(--ink-soft); }
+.lab-traffic .tg-paper-end { stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.lab-traffic .tg-era { font: 600 12px var(--font-mono); fill: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; }
+.lab-traffic .tg-traffic { fill: none; stroke: var(--tg-traffic); stroke-width: 3; }
+.lab-traffic .tg-capacity { fill: none; stroke: var(--tg-capacity); stroke-width: 2; }
+.lab-traffic .tg-capacity.is-after { stroke-dasharray: 6 5; }
+.lab-traffic .tg-band { fill: var(--tg-whatif); opacity: 0.18; }
+.lab-traffic .tg-whatif { fill: none; stroke: var(--tg-whatif); stroke-width: 2; stroke-dasharray: 8 6; }
+.lab-traffic .tg-label { font: 650 14px var(--font-sans); fill: var(--ink); }
+.lab-traffic .tg-point { cursor: pointer; outline: none; }
+.lab-traffic .tg-hit { fill: transparent; }
+.lab-traffic .tg-dot { stroke: var(--surface); stroke-width: 2; }
+.lab-traffic .tg-point.is-traffic .tg-dot { fill: var(--tg-traffic); }
+.lab-traffic .tg-point.is-capacity .tg-dot { fill: var(--tg-capacity); }
+.lab-traffic .tg-point.is-capacity.is-after .tg-dot { fill: var(--surface); stroke: var(--tg-capacity); stroke-width: 3; }
+.lab-traffic .tg-point:hover .tg-dot, .lab-traffic .tg-point:focus-visible .tg-dot { r: 8; }
+.lab-traffic .tg-point:focus-visible .tg-hit { stroke: var(--focus); stroke-width: 3; }
+
+.lab-traffic .tg-legend { display: flex; flex-wrap: wrap; gap: 0.2rem 1.4rem; margin: 0.4rem 0 0; padding: 0; list-style: none; font-size: 0.95rem; }
+.lab-traffic .tg-legend li { display: flex; align-items: center; gap: 0.45rem; }
+.lab-traffic .tg-key { display: inline-block; width: 1.6rem; height: 0; border-top: 3px solid; }
+.lab-traffic .key-traffic { border-color: var(--tg-traffic); }
+.lab-traffic .key-capacity { border-color: var(--tg-capacity); border-top-width: 2px; }
+.lab-traffic .key-whatif { border-color: var(--tg-whatif); border-top-style: dashed; }
+.lab-traffic .tg-readout { margin: 0.4rem 0 0; min-height: 1.4em; color: var(--ink-soft); }
+
+.lab-traffic .tg-side { display: flex; flex-direction: column; gap: 0.8rem; }
+.lab-traffic .tg-question { margin: 0 0 0.4rem; font-size: 1.2rem; font-weight: 650; }
+.lab-traffic .tg-table { margin-top: 1rem; }
+.lab-traffic .tg-table summary { cursor: pointer; font-weight: 600; }
+.lab-traffic .tg-table table { margin-top: 0.4rem; border-collapse: collapse; font-size: 0.95rem; }
+.lab-traffic .tg-table th, .lab-traffic .tg-table td { padding: 0.3rem 0.6rem; border-bottom: 1px solid var(--line-soft); text-align: left; vertical-align: top; }
+.lab-traffic .tg-table td:nth-child(3), .lab-traffic .tg-table td:nth-child(4) { font-variant-numeric: tabular-nums; }
+.lab-traffic .tg-table .is-after td { font-style: italic; }
+.lab-traffic .tg-table { overflow-x: auto; }
+/* "Hot" means failure in the other labs; here a toggle only adds a layer to the chart. */
+.lab-traffic .toggle input:checked + span { background: var(--ink); border-color: var(--ink); color: var(--bg); }

@@ -1,0 +1,98 @@
+.lab-clos .controls + .controls { margin-top: -0.2rem; }
+.lab-clos .clos-hint { color: var(--ink-soft); font-size: 0.92rem; }
+
+.lab-clos .clos-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .lab-clos .clos-grid { grid-template-columns: minmax(0, 1fr); }
+}
+.lab-clos .clos-main, .lab-clos .clos-side { min-width: 0; }
+.lab-clos .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 0; }
+.lab-clos .clos-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line-soft); padding: 0.25rem; }
+.lab-clos .clos-net { display: block; width: 100%; min-width: 620px; height: auto; max-height: 52vh; }
+
+/* Drawing */
+.lab-clos .clos-block rect { fill: none; stroke: var(--line-soft); stroke-width: 2px; stroke-dasharray: 6 6; }
+.lab-clos .clos-block text { font-size: 19px; fill: var(--ink-soft); font-weight: 600; }
+
+.lab-clos .clos-link { cursor: pointer; }
+.lab-clos .clos-link-hit { fill: none; stroke: transparent; stroke-width: 24px; pointer-events: stroke; }
+.lab-clos .clos-link-line { fill: none; stroke: var(--link-idle); stroke-width: 3px; stroke-linecap: round; pointer-events: none; }
+.lab-clos .clos-link-line.is-path { stroke: var(--own); }
+.lab-clos .clos-link-line.is-other { stroke: var(--relay); }
+.lab-clos .clos-link-line.is-over { stroke: var(--hot); }
+.lab-clos .clos-link-line.is-down { stroke: var(--hot); stroke-dasharray: 3 12; stroke-width: 4px; }
+.lab-clos .clos-link:hover .clos-link-hit { stroke: var(--accent-soft); }
+.lab-clos .clos-link:focus-visible { outline: none; }
+.lab-clos .clos-link:focus-visible .clos-link-hit { stroke: var(--focus); stroke-width: 10px; }
+.lab-clos .clos-link-label {
+  font-size: 22px;
+  font-weight: 700;
+  fill: var(--ink);
+  font-variant-numeric: tabular-nums;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 6px;
+  pointer-events: none;
+}
+
+.lab-clos .clos-node circle { fill: var(--node-upper); stroke: var(--surface); stroke-width: 3px; }
+.lab-clos .clos-node-name { font-size: 25px; font-weight: 650; fill: var(--on-upper); font-variant-numeric: tabular-nums; pointer-events: none; }
+.lab-clos .clos-node-tag { font-size: 22px; font-weight: 700; fill: var(--ink); }
+.lab-clos .clos-node.tier-tor circle { fill: var(--tor); }
+.lab-clos .clos-node.tier-tor .clos-node-name { fill: var(--on-tor); }
+.lab-clos .clos-node.is-src circle { fill: var(--selected); }
+.lab-clos .clos-node.is-src .clos-node-name { fill: var(--on-selected); }
+.lab-clos .clos-node.is-dst circle { fill: var(--own); }
+.lab-clos .clos-node.is-dst .clos-node-name { fill: var(--surface); }
+.lab-clos .clos-node[role='button'] { cursor: pointer; }
+.lab-clos .clos-node.is-failed circle { fill: var(--surface); stroke: var(--hot); stroke-width: 6px; stroke-dasharray: 8 7; }
+.lab-clos .clos-node.is-failed .clos-node-name { fill: var(--hot); }
+.lab-clos .clos-node:focus-visible { outline: none; }
+.lab-clos .clos-node:focus-visible circle { stroke: var(--focus); stroke-width: 8px; }
+
+.lab-clos .clos-legend { display: flex; flex-wrap: wrap; gap: 0.1rem 1rem; margin: 0.3rem 0 0; padding: 0; list-style: none; font-size: 0.92rem; color: var(--ink-soft); }
+.lab-clos .clos-swatch { display: inline-block; width: 1.5em; height: 0; margin-right: 0.35em; vertical-align: middle; border-top: 5px solid var(--link-idle); }
+.lab-clos .clos-swatch.is-path { border-top-color: var(--own); }
+.lab-clos .clos-swatch.is-other { border-top-color: var(--relay); }
+.lab-clos .clos-swatch.is-over { border-top-color: var(--hot); }
+.lab-clos .clos-swatch.is-down { border-top: 4px dotted var(--hot); }
+
+/* Bars and path list */
+.lab-clos h3 { margin: 0.6rem 0 0.25rem; font-size: 1.05rem; }
+.lab-clos .clos-bars, .lab-clos .clos-paths { margin: 0; padding: 0; list-style: none; }
+.lab-clos .clos-bars.is-many { columns: 2; column-gap: 1rem; }
+@media (max-width: 700px) {
+  .lab-clos .clos-bars.is-many { columns: 1; }
+}
+.lab-clos .clos-bar { display: grid; grid-template-columns: 3.9em minmax(0, 1fr) 3em; gap: 0.35rem; align-items: center; break-inside: avoid; padding-block: 0.08rem; }
+.lab-clos .clos-bar-name { font-family: var(--font-mono); font-size: 0.86rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lab-clos .clos-bar-track { position: relative; display: block; height: 0.95rem; background: var(--bar-track); }
+.lab-clos .clos-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--own); }
+.lab-clos .clos-bar-fill.is-over { background: var(--hot); }
+.lab-clos .clos-bar-tick { position: absolute; top: -2px; bottom: -2px; width: 3px; margin-left: -1px; background: var(--accent); }
+.lab-clos .clos-bar-cap { position: absolute; top: -2px; bottom: -2px; width: 2px; margin-left: -2px; background: var(--ink); }
+.lab-clos .clos-bar-value { text-align: right; font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+.lab-clos .clos-bar-value.is-over { color: var(--hot); }
+.lab-clos .clos-bar.is-down .clos-bar-name, .lab-clos .clos-bar.is-down .clos-bar-value { color: var(--hot); }
+.lab-clos .clos-key { margin: 0.3rem 0 0; color: var(--ink-soft); font-size: 0.88rem; }
+
+.lab-clos .clos-paths li { display: grid; grid-template-columns: max-content minmax(3rem, 1fr) 3em; gap: 0.5rem; align-items: center; padding-block: 0.08rem; }
+.lab-clos .clos-paths b { text-align: right; font-variant-numeric: tabular-nums; }
+.lab-clos .clos-path-route { font-family: var(--font-mono); font-size: 0.9rem; white-space: nowrap; }
+.lab-clos .clos-paths li.clos-paths-none { display: block; color: var(--hot); font-weight: 650; }
+
+@media (max-width: 500px) {
+  .lab-clos .clos-paths li { grid-template-columns: minmax(0, 1fr) 3em; }
+  .lab-clos .clos-paths .clos-bar-track { display: none; }
+  .lab-clos .clos-path-route { white-space: normal; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lab-clos .clos-link-line { transition: stroke-width 0.2s ease; }
+  .lab-clos .clos-bar-fill { transition: width 0.2s ease; }
+}

@@ -1,0 +1,36 @@
+/* The reveal deck, shared by Theory vs practice and Why OpenFlow. */
+.deck-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.6rem; margin: 0 0 0.8rem; padding: 0; list-style: none; }
+@media (min-width: 1300px) {
+  .panel-practice .deck-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .panel-openflow .deck-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.deck-card { padding: 0.6rem 0.8rem; background: var(--surface); border: 2px solid var(--line-soft); min-width: 0; }
+.deck-card.is-open { border-color: var(--accent); }
+.deck-head { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.4rem 0.7rem; }
+.deck-n { flex: none; display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border: 2px solid var(--line); border-radius: 50%; font: 650 0.9rem var(--font-mono); }
+.deck-head-text { flex: 1 1 12rem; min-width: 0; }
+.deck-label { display: block; font: 600 0.72rem var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.deck-theory { display: block; font-size: 1.15rem; font-weight: 650; }
+.deck-open, .deck-tools button {
+  padding: 0.35rem 0.75rem;
+  background: var(--accent);
+  color: var(--on-accent);
+  border: 0;
+  font-weight: 650;
+  cursor: pointer;
+}
+.deck-tools { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.deck-tools button { background: var(--surface); color: var(--ink); border: 2px solid var(--line); }
+.deck-body { margin-top: 0.5rem; }
+.deck-practice, .deck-ask { margin: 0 0 0.4rem; font-size: 1.05rem; }
+.deck-quote { margin: 0 0 0.35rem; padding: 0.1rem 0 0.1rem 0.8rem; border-left: 4px solid var(--accent); }
+.deck-quote p { margin: 0; font-style: italic; }
+.deck-source { margin: 0 0 0.4rem; font: 550 0.85rem var(--font-mono); color: var(--ink-soft); }
+.deck-later { margin: 0; font-size: 0.98rem; }
+.deck-later cite { font: 550 0.85rem var(--font-mono); color: var(--ink-soft); font-style: normal; }
+.deck-chip { display: inline-block; padding: 0.05rem 0.4rem; background: var(--illustration-bg); color: var(--illustration-ink); font: 650 0.72rem var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase; }
+
+.panel-practice .practice-question, .panel-openflow .of-question { margin: 0 0 0.5rem; max-width: 70rem; font-size: clamp(1.4rem, 2.4vw, 2.6rem); font-weight: 700; line-height: 1.18; }
+.panel-practice .practice-how, .panel-openflow .of-how { margin: 0 0 0.8rem; color: var(--ink-soft); font-size: 1.1rem; }
+.panel-practice .practice-labs { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; margin-top: 1rem; padding-top: 0.6rem; border-top: 3px solid var(--line); }
+.panel-practice .practice-labs p { flex-basis: 100%; margin: 0; }

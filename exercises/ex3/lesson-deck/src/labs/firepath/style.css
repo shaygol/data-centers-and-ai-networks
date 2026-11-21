@@ -1,0 +1,146 @@
+.lab-firepath .is-off { display: none; }
+.lab-firepath > .paper-note { max-width: none; }
+
+/* Stepper, with the summary values beside it so the loss stays on screen */
+.lab-firepath .fp-stepper {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 0.5rem 1.25rem;
+  margin: 0.4rem 0 0.6rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--surface);
+  border: 2px solid var(--line);
+}
+@media (max-width: 1100px) {
+  .lab-firepath .fp-stepper { grid-template-columns: minmax(0, 1fr); }
+}
+.lab-firepath .fp-step-words { min-width: 0; }
+.lab-firepath .fp-stats { grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); margin-top: 0; align-content: start; }
+.lab-firepath .fp-stats .load { grid-column: 1 / -1; }
+.lab-firepath .fp-step-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.5rem; }
+.lab-firepath .fp-step-controls > button {
+  padding: 0.4rem 1rem;
+  background: var(--accent);
+  color: var(--on-accent);
+  border: 2px solid var(--accent);
+  font-weight: 650;
+  cursor: pointer;
+}
+.lab-firepath .fp-step-controls > button:disabled { background: var(--surface); color: var(--ink-soft); border-color: var(--line-soft); cursor: default; }
+.lab-firepath #fp-back::before { content: '\2190\00a0'; }
+.lab-firepath #fp-forward::after { content: '\00a0\2192'; }
+.lab-firepath .fp-position { font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; margin-inline: 0.3rem; }
+.lab-firepath .fp-pips { display: flex; flex-wrap: wrap; gap: 0.2rem; margin: 0; padding: 0; list-style: none; }
+.lab-firepath .fp-pips button {
+  min-width: 2.1rem;
+  padding: 0.2rem 0.3rem;
+  background: var(--surface);
+  color: var(--ink);
+  border: 2px solid var(--line-soft);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.lab-firepath .fp-pips button:hover { background: var(--accent-soft); }
+.lab-firepath .fp-pips button[aria-current='step'] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+.lab-firepath .fp-step-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.75rem; margin-top: 0.4rem; }
+.lab-firepath .fp-step-title { margin: 0; font-size: 1.45rem; line-height: 1.2; }
+.lab-firepath .fp-who { padding: 0.12rem 0.55rem; font-weight: 650; font-size: 0.95rem; }
+.lab-firepath .fp-who-quiet { background: var(--tab); color: var(--ink); }
+.lab-firepath .fp-who-fabric { background: var(--hot); color: var(--surface); }
+.lab-firepath .fp-who-central { background: var(--relay); color: var(--surface); }
+.lab-firepath .fp-who-local { background: var(--tor); color: var(--on-tor); }
+.lab-firepath .fp-step-detail { margin: 0.2rem 0 0; font-size: 1.1rem; max-width: 80rem; }
+.lab-firepath .fp-ask { margin: 0.25rem 0 0; font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+
+/* The planes */
+.lab-firepath .fp-planes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; align-items: start; }
+@media (max-width: 1500px) {
+  .lab-firepath .fp-planes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lab-firepath .fp-tables { grid-column: 1 / -1; }
+}
+@media (max-width: 800px) {
+  .lab-firepath .fp-planes { grid-template-columns: minmax(0, 1fr); }
+}
+.lab-firepath .fp-plane { min-width: 0; background: var(--surface); border: 1px solid var(--line-soft); }
+.lab-firepath .fp-plane-head { padding: 0.25rem 0.6rem; }
+.lab-firepath .fp-plane-head h3 { margin: 0; font-size: 1.15rem; }
+.lab-firepath .fp-plane-head p { margin: 0; font-size: 0.9rem; }
+.lab-firepath .tone-cpn-head { background: var(--relay); color: var(--surface); }
+.lab-firepath .tone-fabric-head { background: var(--own); color: var(--surface); }
+.lab-firepath .tone-local-head { background: var(--tor); color: var(--on-tor); }
+.lab-firepath .fp-scroll { overflow-x: auto; padding: 0.3rem; }
+.lab-firepath .fp-net { display: block; width: 100%; height: auto; min-width: 460px; max-height: max(33vh, 300px); }
+
+/* Control plane drawing */
+.lab-firepath .fp-cpn-line { stroke: var(--relay); stroke-width: 3px; stroke-dasharray: 9 7; }
+.lab-firepath .fp-bus { stroke-width: 6px; stroke-dasharray: none; }
+.lab-firepath .fp-bus-name { font-size: 22px; font-weight: 700; fill: var(--relay); }
+.lab-firepath .fp-bus-label { font-size: 21px; font-weight: 650; fill: var(--ink); font-variant-numeric: tabular-nums; }
+.lab-firepath .fp-arrow { fill: var(--relay); }
+.lab-firepath .fp-master rect { fill: var(--surface); stroke: var(--relay); stroke-width: 3px; }
+.lab-firepath .fp-master text { fill: var(--ink); }
+.lab-firepath .fp-master-name { font-size: 23px; font-weight: 700; }
+.lab-firepath .fp-master-status { font-size: 21px; font-variant-numeric: tabular-nums; }
+.lab-firepath .fp-master.is-active rect { fill: var(--relay); }
+.lab-firepath .fp-master.is-active text { fill: var(--surface); }
+.lab-firepath .fp-master.is-stopped rect { stroke: var(--hot); stroke-width: 5px; stroke-dasharray: 8 7; }
+.lab-firepath .fp-master.is-stopped text { fill: var(--hot); }
+.lab-firepath .fp-master.is-stopped .fp-cpn-line { stroke: var(--line-soft); }
+.lab-firepath .fp-fmrp text { font-size: 19px; font-weight: 650; fill: var(--ink-soft); }
+.lab-firepath .fp-fmrp.is-live .fp-cpn-line { stroke-width: 7px; stroke-dasharray: none; }
+.lab-firepath .fp-fmrp.is-live text { fill: var(--ink); }
+.lab-firepath .fp-client rect { fill: var(--bg); stroke: var(--line); stroke-width: 2px; }
+.lab-firepath .fp-client text { fill: var(--ink); font-variant-numeric: tabular-nums; }
+.lab-firepath .fp-client-name { font-size: 24px; font-weight: 700; }
+.lab-firepath .fp-client-version { font-size: 23px; font-family: var(--font-mono); }
+.lab-firepath .fp-client.is-live .fp-drop { stroke-width: 7px; stroke-dasharray: none; }
+.lab-firepath .fp-client.is-behind rect { stroke: var(--hot); stroke-width: 4px; }
+.lab-firepath .fp-client.is-behind .fp-client-version { fill: var(--hot); font-weight: 700; }
+.lab-firepath .fp-client.is-computing rect { fill: var(--tor); stroke: var(--tor); }
+.lab-firepath .fp-client.is-computing text { fill: var(--on-tor); }
+
+/* Data plane drawing */
+.lab-firepath .fp-link { stroke: var(--own); stroke-width: 7px; stroke-linecap: round; pointer-events: none; }
+.lab-firepath .fp-link-hit { stroke: transparent; stroke-width: 26px; cursor: pointer; }
+.lab-firepath .fp-link-group:hover .fp-link { stroke-width: 11px; }
+.lab-firepath .fp-link-group:focus-visible { outline: none; }
+.lab-firepath .fp-link-group:focus-visible .fp-link { stroke: var(--focus); stroke-width: 11px; }
+.lab-firepath .fp-link-group.is-down .fp-link { stroke: var(--hot); stroke-width: 8px; stroke-dasharray: 3 14; }
+.lab-firepath .fp-link-group.is-down .fp-link-hit { cursor: default; }
+.lab-firepath .fp-node circle { fill: var(--node-upper); stroke: var(--surface); stroke-width: 3px; }
+.lab-firepath .fp-node text { font-size: 26px; font-weight: 650; fill: var(--on-upper); font-variant-numeric: tabular-nums; pointer-events: none; }
+.lab-firepath .fp-node.tier-tor circle { fill: var(--tor); }
+.lab-firepath .fp-node.tier-tor text { fill: var(--on-tor); }
+.lab-firepath .fp-node .fp-master-tag { font-size: 20px; font-weight: 700; fill: var(--relay); }
+
+/* Forwarding tables */
+.lab-firepath .fp-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+.lab-firepath .fp-table th, .lab-firepath .fp-table td { padding: 0.18rem 0.35rem; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--line-soft); }
+.lab-firepath .fp-table thead th { font-size: 0.82rem; color: var(--ink-soft); border-bottom: 2px solid var(--line); }
+.lab-firepath .fp-table td span, .lab-firepath .fp-table td s { margin-right: 0.45em; }
+.lab-firepath .fp-table td.is-changed { background: var(--accent-soft); font-weight: 700; }
+.lab-firepath .fp-table .is-behind .fp-table-version { color: var(--hot); font-weight: 700; }
+.lab-firepath .fp-hop-dead { color: var(--hot); font-weight: 700; }
+.lab-firepath .fp-hop-none { color: var(--hot); }
+
+/* What is centralized, and the update log */
+.lab-firepath .fp-state { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 1rem; margin-top: 0.7rem; align-items: start; }
+@media (max-width: 800px) {
+  .lab-firepath .fp-state { grid-template-columns: minmax(0, 1fr); }
+}
+.lab-firepath .fp-roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; }
+.lab-firepath .fp-state h4 { margin: 0 0 0.2rem; font-size: 1.05rem; }
+.lab-firepath .fp-role ul, .lab-firepath .fp-log { margin: 0; padding: 0; list-style: none; }
+.lab-firepath .fp-role li { padding: 0.12rem 0.45rem; border-left: 6px solid var(--line-soft); margin-bottom: 0.15rem; }
+.lab-firepath .fp-role-master li.is-now { background: var(--relay); color: var(--surface); border-left-color: var(--relay); font-weight: 650; }
+.lab-firepath .fp-role-client li.is-now { background: var(--tor); color: var(--on-tor); border-left-color: var(--tor); font-weight: 650; }
+.lab-firepath .fp-log li { padding: 0.12rem 0; font-variant-numeric: tabular-nums; }
+.lab-firepath .fp-log b { font-family: var(--font-mono); }
+.lab-firepath .fp-log li.is-new { font-weight: 700; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .lab-firepath .fp-client.is-live .fp-arrow { animation: fp-pulse 1.1s ease-in-out infinite; }
+  @keyframes fp-pulse { 50% { opacity: 0.35; } }
+}

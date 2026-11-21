@@ -1,0 +1,47 @@
+.lab-congestion .slider { flex: 1 1 18rem; max-width: 34rem; }
+.lab-congestion .slider-name { font-weight: 600; }
+.lab-congestion .slider input { flex-basis: 100%; width: 100%; margin: 0.2rem 0 0; }
+
+.lab-congestion .toggle input:checked + span { background: var(--own); border-color: var(--own); color: var(--surface); }
+
+.lab-congestion .chart-panels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .lab-congestion .chart-panels { grid-template-columns: minmax(0, 1fr); }
+}
+.lab-congestion .chart-panel h3 { margin: 0; font-size: 1.25rem; }
+.lab-congestion .chart-subtitle { margin: 0 0 0.3rem; color: var(--ink-soft); font-size: 0.9rem; }
+.lab-congestion .chart-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line-soft); padding: 0.25rem; }
+.lab-congestion .chart { display: block; width: 100%; min-width: 340px; height: auto; max-height: 42vh; }
+
+.lab-congestion .bar-under { fill: var(--own); }
+.lab-congestion .bar-over { fill: var(--hot); }
+.lab-congestion .bar-queue { fill: var(--accent); }
+.lab-congestion .chart-axis { stroke: var(--line); stroke-width: 2px; }
+.lab-congestion .chart-capacity { stroke: var(--ink); stroke-width: 3px; }
+.lab-congestion .chart-limit { stroke: var(--ink); stroke-width: 4px; }
+.lab-congestion .chart-average { stroke: var(--relay); stroke-width: 4px; stroke-dasharray: 12 8; }
+
+.lab-congestion .chart-label {
+  fill: var(--ink);
+  font-size: 23px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 5px;
+  stroke-linejoin: round;
+}
+@media (max-width: 560px) {
+  .lab-congestion .chart-label { font-size: 30px; }
+}
+.lab-congestion .chart-label-soft { fill: var(--ink-soft); font-weight: 500; }
+.lab-congestion .chart-label-hot { fill: var(--hot); }
+.lab-congestion .chart-label-average { fill: var(--relay); }
+
+.lab-congestion .fix-list { margin: 0.7rem 0 0; padding: 0; list-style: none; max-width: 70rem; }
+.lab-congestion .fix-list li { margin-bottom: 0.15rem; }
