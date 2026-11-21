@@ -1,0 +1,21 @@
+.panel-openflow .of-facts { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.5rem 1.5rem; margin-bottom: 0.8rem; }
+@media (min-width: 1000px) {
+  .panel-openflow .of-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.panel-openflow .of-close { margin-top: 1rem; padding-top: 0.6rem; border-top: 3px solid var(--line); font-size: 1.15rem; }
+.panel-openflow .of-close-label { margin: 0; font: 600 0.74rem var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.panel-openflow .of-close ul { margin: 0.2rem 0 0; padding-left: 1.2em; }
+.panel-openflow .of-facts .walk-clips .stop-quote { margin-top: 0.9rem; }
+.panel-openflow .of-sim-title { margin: 1.2rem 0 0.1rem; font-size: 1.4rem; }
+.panel-openflow .deck-body .walk-clips .stop-quote { margin: 1rem 0.3rem 0.6rem; }
+.panel-openflow .deck-list { align-items: start; }
+.panel-openflow .of-context { margin: 0 0 0.4rem; font-size: 1rem; color: var(--ink-soft); }
+.panel-openflow .of-clues-title { margin: 1.6rem 0 0.7rem; font-size: clamp(1.4rem, 1.8vw, 1.8rem); }
+.panel-openflow .deck-ask { font-style: italic; border-left: 4px solid var(--accent); padding-left: 0.6rem; }
+
+.panel-openflow .of-insight { margin: 0.4rem 0 0.2rem; padding: 0.5rem 0.8rem 0.6rem; border-left: 4px solid var(--accent); background: color-mix(in srgb, var(--accent) 7%, transparent); border-radius: 0 6px 6px 0; }
+.panel-openflow .of-insight-label { margin: 0 0 0.3rem; font: 600 0.74rem var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.panel-openflow .of-insight-intro { margin: 0 0 0.3rem; }
+.panel-openflow .of-insight-steps { margin: 0 0 0.3rem; padding-left: 1.3em; }
+.panel-openflow .of-insight-steps li { margin: 0.2rem 0; }
+.panel-openflow .of-insight-close { margin: 0.4rem 0 0; font-weight: 600; }

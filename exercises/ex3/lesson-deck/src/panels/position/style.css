@@ -1,0 +1,90 @@
+.panel-position .split-heading { margin: 1.6rem 0 0.8rem; padding-top: 1rem; border-top: 3px solid var(--line); font-size: 1.35rem; }
+
+.panel-position .split-result { display: grid; gap: 0.8rem; margin-bottom: 0.5rem; }
+.panel-position .split-row-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 1rem; }
+.panel-position .split-name { flex: 1 1 14rem; font-size: 1.35rem; font-weight: 650; }
+.panel-position .split-count { font-size: clamp(2rem, 4vw, 4.2rem); font-weight: 750; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.panel-position .split-share { min-width: 4ch; font-size: 1.5rem; text-align: right; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.panel-position .split-track { height: 2.4rem; background: var(--bar-track); border: 2px solid var(--line); overflow: hidden; }
+.panel-position .split-fill { display: block; height: 100%; }
+
+.panel-position .split-total { margin: 0.2rem 0 0.4rem; font-size: 1.1rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.panel-position .split-prompt { margin: 0 0 1rem; max-width: 62rem; font-size: 1.5rem; font-weight: 600; }
+
+.panel-position .split-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.5rem 1.5rem; margin-top: 1rem; padding-top: 0.6rem; border-top: 3px solid var(--line); }
+.panel-position .split-form-title { flex-basis: 100%; margin: 0; color: var(--ink-soft); }
+.panel-position .split-field { display: flex; flex-direction: column; gap: 0.15rem; font-weight: 550; }
+.panel-position .split-field input {
+  width: 7rem;
+  padding: 0.3rem 0.5rem;
+  background: var(--surface);
+  color: var(--ink);
+  border: 2px solid var(--line);
+  font-size: 1.3rem;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .panel-position .split-fill { transition: width 0.25s ease; }
+}
+
+.panel-position .split-challenges { margin: 0.6rem 0 1rem; }
+.panel-position .split-challenges h3 { margin: 0 0 0.4rem; font-size: 1.35rem; }
+.panel-position .split-challenge-columns { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.5rem 1.5rem; }
+@media (min-width: 1000px) {
+  .panel-position .split-challenge-columns { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.panel-position .split-detail { display: block; font-size: 1rem; font-weight: 400; color: var(--ink-soft); }
+
+/* Part 2: the question, the options table and the link-failure explorer (from the partner's homework page). */
+.panel-position .part2 { max-width: 70rem; }
+.panel-position .part2 p { max-width: 62rem; font-size: 1.15rem; }
+.panel-position .part2-table-wrap { overflow-x: auto; margin: 0.6rem 0 1rem; }
+.panel-position .part2-table { width: 100%; border-collapse: collapse; font-size: 1.05rem; }
+.panel-position .part2-table th, .panel-position .part2-table td { text-align: left; vertical-align: top; padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--line-soft); }
+.panel-position .part2-table th { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
+
+:is(.panel-position, .panel-openflow) .hv { margin: 0.8rem 0 1rem; }
+:is(.panel-position, .panel-openflow) .hv-tabs { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+:is(.panel-position, .panel-openflow) .hv-tabs button, :is(.panel-position, .panel-openflow) .hv-go { border: 2px solid var(--line-soft); background: var(--surface); color: var(--ink); font: 600 1rem var(--font-sans); padding: 0.45rem 0.9rem; cursor: pointer; }
+:is(.panel-position, .panel-openflow) .hv-tabs button.on, :is(.panel-position, .panel-openflow) .hv-go { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+:is(.panel-position, .panel-openflow) .hv-go:disabled { opacity: 0.6; cursor: wait; }
+:is(.panel-position, .panel-openflow) .hv-body { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(14rem, 1fr); gap: 1rem; align-items: start; }
+:is(.panel-position, .panel-openflow) .hv-svg { width: 100%; height: auto; display: block; }
+:is(.panel-position, .panel-openflow) .hv-bg { fill: var(--bar-track); stroke: var(--line-soft); }
+:is(.panel-position, .panel-openflow) .hv-link { stroke: var(--link-idle); stroke-width: 2; }
+:is(.panel-position, .panel-openflow) .hv-link.dead { stroke: var(--hot); stroke-dasharray: 5 4; }
+:is(.panel-position, .panel-openflow) .hv-cpn line { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 2 5; opacity: 0.6; }
+:is(.panel-position, .panel-openflow) .hv-node rect { fill: var(--surface); stroke: var(--relay); stroke-width: 1.5; transition: stroke 0.3s, fill 0.3s; }
+:is(.panel-position, .panel-openflow) .hv-node text, :is(.panel-position, .panel-openflow) .hv-hub text { font: 600 12px var(--font-mono); fill: var(--ink); }
+:is(.panel-position, .panel-openflow) .hv-hub rect { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; stroke-dasharray: 5 3; }
+:is(.panel-position, .panel-openflow) .hv-svg .sub { font: 500 9px var(--font-mono); fill: var(--ink-soft); }
+:is(.panel-position, .panel-openflow) .hv-node.alert rect { stroke: var(--hot); fill: color-mix(in srgb, var(--hot) 10%, var(--surface)); }
+:is(.panel-position, .panel-openflow) .hv-node.work rect, :is(.panel-position, .panel-openflow) .hv-hub.work rect { fill: var(--accent-soft); stroke: var(--accent); }
+:is(.panel-position, .panel-openflow) .hv-none { font: 500 11px var(--font-mono); fill: var(--ink-soft); }
+:is(.panel-position, .panel-openflow) .hv-cap { font: 500 9px var(--font-mono); fill: var(--ink-soft); letter-spacing: 0.1em; text-transform: uppercase; }
+:is(.panel-position, .panel-openflow) .hv-x { font: 700 20px var(--font-sans); fill: var(--hot); }
+:is(.panel-position, .panel-openflow) .hv-pk { fill: var(--accent); }
+:is(.panel-position, .panel-openflow) .hv-pk.gray { fill: var(--ink-soft); }
+:is(.panel-position, .panel-openflow) .hv-gear { font: 700 16px var(--font-sans); fill: var(--accent); }
+:is(.panel-position, .panel-openflow) .hv-entry { font: 700 13px var(--font-sans); fill: var(--own); }
+:is(.panel-position, .panel-openflow) .hv-lsd { font: 600 10px var(--font-mono); fill: var(--accent); }
+:is(.panel-position, .panel-openflow) .hv-side { display: flex; flex-direction: column; gap: 0.6rem; }
+:is(.panel-position, .panel-openflow) .hv-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+:is(.panel-position, .panel-openflow) .hv-steps li { display: flex; gap: 0.6rem; align-items: flex-start; padding: 0.5rem 0.6rem; border: 1px solid var(--line-soft); font-size: 1rem; color: var(--ink-soft); transition: all 0.25s; }
+:is(.panel-position, .panel-openflow) .hv-steps .hv-n { flex: none; width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; font: 600 0.8rem var(--font-mono); }
+:is(.panel-position, .panel-openflow) .hv-steps li.on { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); }
+:is(.panel-position, .panel-openflow) .hv-steps li.done { color: var(--ink); }
+:is(.panel-position, .panel-openflow) .hv-steps li.done .hv-n { background: var(--own); border-color: var(--own); color: #fff; }
+:is(.panel-position, .panel-openflow) .hv-note { margin: 0; color: var(--ink-soft); }
+:is(.panel-position, .panel-openflow) .hv-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0.8rem 0 0; }
+:is(.panel-position, .panel-openflow) .hv-facts > div { border: 1px solid var(--line-soft); padding: 0.5rem 0.7rem; }
+:is(.panel-position, .panel-openflow) .hv-facts dt { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
+:is(.panel-position, .panel-openflow) .hv-facts dd { margin: 0.15rem 0 0; font-weight: 550; }
+@media (max-width: 760px) {
+  :is(.panel-position, .panel-openflow) .hv-body, :is(.panel-position, .panel-openflow) .hv-facts { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  :is(.panel-position, .panel-openflow) .hv-gear { animation: hv-gearspin 1.2s ease-out; transform-box: fill-box; transform-origin: center; }
+}
+@keyframes hv-gearspin { from { transform: rotate(-180deg); opacity: 0; } to { transform: none; opacity: 1; } }

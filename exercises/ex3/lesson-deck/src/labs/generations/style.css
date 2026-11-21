@@ -1,0 +1,91 @@
+
+/* Legend */
+.lab-generations .gens-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.15rem 1rem; margin: 0; padding: 0; list-style: none; font-size: 0.92rem; }
+.lab-generations .gens-legend li { display: flex; align-items: center; gap: 0.4rem; }
+.lab-generations .key { display: inline-block; width: 1.5rem; height: 1rem; }
+.lab-generations .key-blocking, .lab-generations .mark-b::before {
+  background: repeating-linear-gradient(45deg, var(--hot) 0 2px, var(--surface) 2px 7px);
+  border: 2px dashed var(--hot);
+}
+.lab-generations .key-nonblocking, .lab-generations .mark-nb::before { background: var(--selected-soft); border: 2px solid var(--own); }
+.lab-generations .key-unmarked { background: var(--surface); border: 1px solid var(--line); }
+.lab-generations .key-link { display: inline-block; width: 1.8rem; background: var(--line); }
+.lab-generations .key-link-1 { height: 2px; }
+.lab-generations .key-link-10 { height: 5px; }
+.lab-generations .key-link-40 { height: 10px; }
+
+/* Diagram */
+.lab-generations .gens-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line-soft); padding: 0.4rem; }
+.lab-generations .gens-diagram { display: block; width: 100%; height: auto; }
+.lab-generations .gens-link { stroke: var(--line); stroke-linecap: round; }
+.lab-generations .gens-servers { fill: var(--line-soft); }
+.lab-generations .gens-link-plate { fill: var(--surface); }
+.lab-generations .gens-link-label { font-size: 18px; font-weight: 650; fill: var(--ink); }
+.lab-generations .gens-stack { fill: var(--surface); stroke: var(--line); stroke-width: 1.5px; }
+.lab-generations .gens-block { fill: var(--surface); stroke-width: 3px; }
+.lab-generations .gens-block.stage-blocking { stroke: var(--hot); stroke-dasharray: 11 6; stroke-width: 4px; }
+.lab-generations .gens-block.stage-nonblocking { fill: var(--selected-soft); stroke: var(--own); stroke-width: 4px; }
+.lab-generations .gens-block.stage-unmarked { stroke: var(--line); stroke-width: 1.5px; }
+.lab-generations .gens-swatch.stage-blocking { fill: var(--surface); stroke: var(--hot); stroke-width: 2px; stroke-dasharray: 4 2; }
+.lab-generations .gens-swatch.stage-nonblocking { fill: var(--selected-soft); stroke: var(--own); stroke-width: 2.5px; }
+.lab-generations .gens-hatch-line { stroke: var(--hot); stroke-width: 2px; }
+.lab-generations .gens-inner { stroke: var(--ink-soft); stroke-width: 1.5px; }
+.lab-generations .gens-tile { stroke: var(--surface); stroke-width: 1.5px; }
+.lab-generations rect.tile-upper { fill: var(--node-upper); }
+.lab-generations rect.tile-tor { fill: var(--tor); }
+.lab-generations .gens-tile-text { font-size: 17px; font-weight: 700; }
+.lab-generations text.tile-upper { fill: var(--on-upper); }
+.lab-generations text.tile-tor { fill: var(--on-tor); }
+.lab-generations .gens-more { font-size: 24px; font-weight: 700; fill: var(--ink); }
+.lab-generations .gens-tier-name { font-size: 21px; font-weight: 700; fill: var(--ink); }
+.lab-generations .gens-tier-config { font-family: var(--font-mono); font-size: 18px; font-weight: 600; fill: var(--ink); font-variant-numeric: tabular-nums; }
+.lab-generations .gens-tier-stage { font-size: 18px; font-weight: 700; }
+.lab-generations .stage-text-blocking { fill: var(--hot); }
+.lab-generations .stage-text-nonblocking { fill: var(--own); }
+.lab-generations .gens-tier-count { font-size: 17px; fill: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.lab-generations .gens-illus-chip { fill: var(--illustration-bg); }
+.lab-generations .gens-illus-text { font-size: 16px; font-weight: 650; fill: var(--illustration-ink); }
+
+/* Table 2 */
+.lab-generations .gens-table-box { overflow-x: auto; margin-top: 1rem; border-top: 3px solid var(--line); }
+.lab-generations .gens-table { width: 100%; min-width: 880px; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.lab-generations .gens-table caption { padding: 0.4rem 0; text-align: left; font-weight: 650; }
+.lab-generations .gens-table th, .lab-generations .gens-table td { padding: 0.25rem 0.5rem; text-align: left; border-bottom: 1px solid var(--line-soft); }
+.lab-generations .gens-table thead th { font-size: 0.86rem; color: var(--ink-soft); border-bottom: 2px solid var(--line); vertical-align: bottom; }
+.lab-generations .gens-table tbody th { font-weight: 650; white-space: nowrap; }
+.lab-generations .gens-table tr.is-on { background: var(--accent-soft); }
+.lab-generations .gens-table tr.is-on td, .lab-generations .gens-table tr.is-on th { font-weight: 700; }
+.lab-generations .mark-b::before, .lab-generations .mark-nb::before {
+  content: '';
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 0.35em;
+  vertical-align: -0.05em;
+}
+
+/* A stop's drawings */
+.lab-generations .gens-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
+.lab-generations .gens-panels.is-single { grid-template-columns: minmax(0, 1fr); max-width: 34rem; }
+.lab-generations .gens-panel { min-width: 0; }
+.lab-generations .gens-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.6rem; margin-bottom: 0.2rem; }
+.lab-generations .gens-title h4 { margin: 0; font-size: 1.2rem; }
+.lab-generations .gens-year { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.lab-generations .gens-bisection { font-weight: 700; font-variant-numeric: tabular-nums; }
+.lab-generations .gens-derived { margin: 0.2rem 0 0; font-size: 0.92rem; color: var(--ink-soft); }
+.lab-generations .gens-legend { margin-top: 0.4rem; font-size: 0.95rem; }
+.lab-generations .gens-changes { margin: 0.5rem 0 0; }
+.lab-generations .gens-changes h4 { margin: 0 0 0.2rem; font-size: 1rem; }
+.lab-generations .gens-changes ul { display: flex; flex-wrap: wrap; gap: 0.15rem 1.2rem; margin: 0; padding: 0; list-style: none; font-size: 0.98rem; font-variant-numeric: tabular-nums; }
+.lab-generations .gens-changes b { font-weight: 650; }
+.lab-generations .gens-table tbody tr { cursor: pointer; }
+.lab-generations .gens-table tbody tr:hover { background: var(--accent-soft); }
+@media (max-width: 1000px) {
+  .lab-generations .gens-panels { grid-template-columns: minmax(0, 1fr); }
+  .lab-generations .gens-diagram { min-width: 520px; }
+}
+
+/* Paper facts under the drawings */
+.lab-generations .gens-facts { margin: 0.6rem 0 0; padding-left: 1.2rem; font-size: 1.05rem; max-width: 70rem; }
+.lab-generations .gens-facts li { margin: 0.15rem 0; }
+.lab-generations .gens-fact-source { color: var(--ink-soft); font-variant-numeric: tabular-nums; }

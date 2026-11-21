@@ -1,0 +1,130 @@
+/* Stop navigation */
+.walk .stop-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 1rem; margin-bottom: 0.9rem; }
+.walk .stop-nav-group { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem; }
+.walk .stop-nav-label {
+  margin-right: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.walk .stop-nav button {
+  min-width: 2.2rem;
+  padding: 0.3rem 0.55rem;
+  background: var(--surface);
+  color: var(--ink);
+  border: 2px solid var(--line);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.walk .stop-nav button:hover:not(:disabled):not([aria-current]) { background: var(--accent-soft); }
+.walk .stop-nav button:disabled { color: var(--ink-soft); border-color: var(--line-soft); cursor: default; }
+.walk .stop-nav button[aria-current='step'] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+
+/* A stop */
+.walk .stop-body { margin-top: 0.7rem; font-size: 1.12rem; line-height: 1.32; }
+.walk .stop-source {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+.walk .stop-columns { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem 2rem; }
+.walk .stop-main, .walk .stop-side { min-width: 0; }
+.walk .stop-block { margin-bottom: 0.7rem; }
+.walk .stop-block h4 { margin: 0 0 0.25rem; font-size: 1.1em; }
+.walk .stop-text { margin: 0 0 0.7rem; font-weight: 600; }
+.walk .stop-list { margin: 0; padding-left: 1.2em; }
+.walk .stop-list li { margin-bottom: 0.25rem; break-inside: avoid; }
+@media (min-width: 1000px) {
+  .walk .stop-list.is-long { columns: 2; column-gap: 2.5rem; }
+}
+
+.walk .stop-table-scroll { overflow-x: auto; }
+.walk .stop-table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.walk .stop-table th, .walk .stop-table td { padding: 0.3rem 0.6rem; border: 2px solid var(--line-soft); text-align: left; vertical-align: top; }
+.walk .stop-table thead th { background: var(--tab); border-bottom-color: var(--line); }
+.walk .stop-table tbody th { font-weight: 650; background: var(--surface); }
+.walk .stop-table td { background: var(--surface); }
+
+.walk .stop-callout { margin-bottom: 0.8rem; padding: 0.5rem 0.7rem; background: var(--surface); border: 2px solid var(--line-soft); }
+.walk .stop-callout p { margin: 0; }
+.walk .callout-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.5rem;
+  margin-bottom: 0.2rem !important;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.walk .followup-question { font-weight: 600; }
+.walk details { margin-top: 0.3rem; }
+.walk summary { cursor: pointer; color: var(--ink-soft); }
+
+/* Lab jumps */
+.walk .stop-labs { display: flex; flex-wrap: wrap; gap: 0.6rem 2rem; margin-top: 0.7rem; padding-top: 0.6rem; border-top: 3px solid var(--line); font-size: 1.15rem; }
+.walk .stop-lab { flex: 1 1 22rem; min-width: 0; }
+.walk .stop-lab p { margin: 0 0 0.3rem; }
+.walk .stop-lab .jump { max-width: 100%; }
+
+/* Header and debate question */
+.walk .stop-kicker { margin: 0; font-family: var(--font-mono); font-size: 0.95rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
+.walk .stop-title { margin: 0.1rem 0 0.3rem; font-size: clamp(1.5rem, 2.2vw, 2.4rem); line-height: 1.15; }
+.walk .stop-question { margin: 0 0 0.6rem; padding: 0.4rem 0.7rem; background: var(--accent-soft); border: 2px solid var(--accent); font-size: clamp(1.15rem, 1.5vw, 1.7rem); font-weight: 650; line-height: 1.25; }
+.walk .stop-question-label { display: block; font-family: var(--font-mono); font-size: 0.74rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
+.walk .stop-question details { font-size: 1rem; font-weight: 400; }
+
+/* The four fields */
+.walk .stop-fields { display: grid; gap: 0.45rem; margin-bottom: 0.6rem; }
+.walk .stop-field { min-width: 0; }
+.walk .stop-field h4 { margin: 0; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
+.walk .stop-field p { margin: 0; }
+@media (min-width: 1000px) {
+  .walk .stop-columns.has-figure { grid-template-columns: minmax(0, 2fr) minmax(0, 3.4fr); }
+  .walk .stop-columns.has-side { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+  .walk .stop-columns.is-wide .stop-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.walk .stop-figure { min-width: 0; }
+.walk .stop-figure .stop-block { margin-top: 0.5rem; font-size: 1rem; }
+
+/* A key passage: the paper's words, large enough to read together on a projector */
+.walk .stop-quote { margin: 0 0 0.6rem; padding: 0.3rem 0 0.3rem 0.9rem; border-left: 5px solid var(--accent); font-family: var(--font-serif, Georgia, 'Times New Roman', serif); font-size: clamp(1.15rem, 1.35vw, 1.5rem); line-height: 1.38; }
+.walk .stop-quote p { margin: 0; }
+.walk .stop-quote b { font-family: var(--font-sans, inherit); }
+
+/* Paper clippings (v2 passages): the homework's look. Off-white paper with a strip of tape,
+   a slight tilt, highlighted key phrases and a section caption. The paper stays light in dark mode. */
+.walk .stop-quote .tape, .walk .stop-quote-cite { display: none; }
+.walk-clips .stop-quote {
+  position: relative; max-width: 62rem; margin: 1.1rem 0.3rem 0.8rem; padding: 0.95rem 1.2rem 0.5rem;
+  border: 0; border-radius: 2px; background: #fffef9; color: #14232d;
+  font-family: var(--font-serif, Georgia, 'Times New Roman', serif); font-size: clamp(1.1rem, 1.3vw, 1.45rem); line-height: 1.4;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 10px 24px rgba(20, 35, 45, 0.14);
+  transform: rotate(-0.6deg); transition: transform 0.2s;
+}
+.walk-clips .stop-quote:nth-of-type(even) { transform: rotate(0.5deg); }
+.walk-clips .stop-quote:hover { transform: rotate(0deg); }
+.walk-clips .stop-quote .tape {
+  display: block; position: absolute; top: -11px; left: 50%; width: 92px; height: 22px; margin-left: -46px;
+  background: rgba(240, 220, 150, 0.7); transform: rotate(-3deg); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+.walk-clips .stop-quote p { margin: 0; }
+.walk-clips .stop-quote mark { background: #fbe38a; color: inherit; padding: 0 0.1em; border-radius: 2px; }
+.walk-clips .stop-quote-cite {
+  display: block; margin: 0.45rem 0 0; padding-top: 0.3rem; border-top: 1px dashed #cbd7df;
+  font: 500 0.85rem var(--font-mono); color: #566b79;
+}
+.walk-clips .stop-quote-cite b { color: #0a7f77; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .walk-clips .stop-quote { filter: brightness(0.92); }
+}
+:root[data-theme='dark'] .walk-clips .stop-quote { filter: brightness(0.92); }
+@media (prefers-reduced-motion: reduce) {
+  .walk-clips .stop-quote, .walk-clips .stop-quote:nth-of-type(even) { transform: none; transition: none; }
+}
