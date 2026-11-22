@@ -131,7 +131,7 @@ function mount(root) {
     cards: CLUES.map((clue) => ({ id: clue.id, head: h('span', { class: 'deck-theory' }, clue.head), body: clueBody(clue) })),
   });
   root.append(
-    debateBox('Firepath ran Firehose, Watchtower and Saturn. Jupiter runs on OpenFlow. The paper never says why. What pushed them?'),
+    debateBox('Previous generations ran Firepath. Jupiter runs on OpenFlow. The paper never says why. What pushed them?'),
     passageBlocks('s4'),
     h('h3', { class: 'of-sim-title' }, 'Reminder: one link fails'),
     explorer,

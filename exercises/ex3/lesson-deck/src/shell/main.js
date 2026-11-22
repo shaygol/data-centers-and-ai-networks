@@ -86,7 +86,7 @@ function labFrame(lab) {
     ),
     lab.debate ? debateBox(lab.debate.question, lab.debate.reply) : null,
     strip,
-    lab.stub ? null : illustrationLabel(lab.illustration),
+    lab.stub || lab.illustration === null ? null : illustrationLabel(lab.illustration),
     body,
   );
   return { section, body };

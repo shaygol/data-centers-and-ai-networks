@@ -10,6 +10,26 @@
 @media (min-width: 1100px) { .st-grid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); } }
 
 /* Diagram */
+.sc-title { font-size: 15px; font-weight: 700; fill: var(--ink); }
+.sc-bar { fill: var(--surface); stroke: var(--ink-soft); stroke-width: 2px; stroke-dasharray: 6 5; }
+.sc-ghost { fill: none; stroke: var(--line); stroke-width: 1.6px; stroke-dasharray: 2 5; }
+.sc-bar-name { font-size: 15px; font-weight: 700; fill: var(--ink); }
+.sc-gone { font-size: 15px; font-weight: 600; fill: var(--ink-soft); text-decoration: line-through; }
+.sc-note { font-size: 12.5px; fill: var(--ink-soft); }
+.sc-cluster { fill: var(--surface); stroke: var(--line); stroke-width: 1.8px; }
+.sc-cluster-name { font-size: 13px; font-weight: 650; fill: var(--ink); }
+.sc-node { fill: var(--surface); stroke: var(--ink-soft); stroke-width: 1.5px; }
+.sc-tor { fill: #f2b705; stroke: #b88700; stroke-width: 1px; }
+.sc-cbr { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.8px; }
+.sc-cbr-text { font-size: 10px; font-weight: 700; fill: var(--ink); text-anchor: middle; }
+.sc-link { stroke: var(--link-idle); stroke-width: 1.1px; }
+.sc-up { stroke: var(--accent); stroke-width: 2.4px; }
+.sc-fabric { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2.4px; }
+.sc-tag { font-size: 12.5px; fill: var(--ink-soft); }
+.sc-dots { font-size: 16px; font-weight: 700; fill: var(--ink-soft); }
+.sc-stat { font-size: 15px; font-weight: 700; fill: var(--ink); }
+.st-scope { margin-bottom: 0.8rem; }
+.st-scope-caption { margin: 0.4rem 0 0.4rem; font-size: 0.95rem; color: var(--ink-soft); }
 .st-diagram-wrap { background: var(--surface); border: 1px solid var(--line-soft); padding: 0.6rem 0.6rem 0.2rem; }
 .st-diagram { display: block; width: 100%; height: auto; font-family: var(--font-sans); }
 .st-link { stroke: var(--link-idle); stroke-width: 1.6px; fill: none; }
@@ -74,13 +94,15 @@
 .st-compare tbody th { font-weight: 500; color: var(--ink-soft); white-space: nowrap; }
 .st-compare tr.is-changed td { font-weight: 700; }
 .st-compare tr.is-changed th { color: var(--ink); font-weight: 650; box-shadow: inset 4px 0 0 var(--accent); }
+.st-list mark { background: #fbe38a; color: #1b1b1b; padding: 0 0.1em; border-radius: 2px; }
+.st-compare mark.st-diff { background: #fbe38a; color: #1b1b1b; padding: 0 0.15em; border-radius: 2px; }
 .st-compare-key { margin: 0.25rem 0 0; font-size: 0.85rem; color: var(--ink-soft); }
 .st-notes { margin: 0.5rem 0 0; padding-left: 1.1em; font-size: 0.9rem; color: var(--ink-soft); }
 
 /* Reveal */
 .st-right .held-back { margin-top: 1rem; }
 .st-reply { margin: 0 0 0.6rem; font-size: 1.1rem; }
-.st-improved h4, .st-challenges h4 { margin: 0.6rem 0 0.2rem; font-size: 1.05rem; }
+.st-improved h4, .st-challenges h4, .st-blocks h4 { margin: 0.6rem 0 0.2rem; font-size: 1.05rem; }
 .st-list { margin: 0; padding-left: 1.2em; font-size: 1.05rem; }
 .st-list li { margin-bottom: 0.2rem; }
 .st-source { font: 500 0.82rem var(--font-mono); color: var(--ink-soft); white-space: nowrap; }
@@ -97,3 +119,44 @@
 .st-pager button { font-size: 1.05rem; }
 .st-next { font-weight: 700; }
 .st-end { color: var(--ink-soft); font-style: italic; }
+.gf-wrap { margin: 0.8rem 0 1rem; }
+.gf-bar-row { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem; }
+.gf-play { padding: 0.3rem 0.9rem; border: 2px solid var(--accent); background: var(--accent); color: #fff; font: inherit; font-weight: 700; border-radius: 999px; cursor: pointer; min-width: 5.5rem; }
+.gf-slider { flex: 1; max-width: 40rem; accent-color: var(--accent); }
+.gf-grid-wrap { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(14rem, 1fr); gap: 0.8rem; align-items: start; }
+.gf-chart { display: block; width: 100%; height: auto; background: var(--surface); border: 1px solid var(--line-soft); font-family: var(--font-sans); }
+.gf-grid { stroke: var(--line-soft); stroke-width: 1px; stroke-dasharray: 3 4; }
+.gf-axis { stroke: var(--ink-soft); stroke-width: 1.4px; }
+.gf-grid-label { font-size: 11px; fill: var(--ink-soft); }
+.gf-bar { cursor: pointer; outline: none; }
+.gf-bar rect { fill: var(--link-idle); transition: fill 0.3s; }
+.gf-bar.is-past rect { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1px; }
+.gf-bar.is-on rect { fill: var(--accent); }
+.gf-bar:focus-visible rect { stroke: var(--ink); stroke-width: 2px; }
+.gf-bar-value { font-size: 12px; font-weight: 700; fill: var(--ink); }
+.gf-bar-year { font-size: 12px; font-weight: 700; fill: var(--ink); }
+.gf-bar-name { font-size: 10.5px; fill: var(--ink-soft); }
+.gf-card { background: var(--surface); border: 1px solid var(--line-soft); padding: 0.6rem 0.8rem; }
+.gf-title { margin: 0; font-size: 1.1rem; }
+.gf-big { margin: 0.2rem 0 0; font-size: 2.1rem; font-weight: 800; line-height: 1.1; }
+.gf-mult { margin: 0.1rem 0 0.5rem; color: var(--ink-soft); }
+.gf-chip-svg { display: block; width: 9rem; height: auto; }
+.gf-c10 { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1px; }
+.gf-c40 { fill: var(--accent); stroke: var(--accent); }
+.gf-chip-text, .gf-vendor { margin: 0.2rem 0 0.4rem; font-weight: 650; }
+.gf-facts { margin: 0.2rem 0; font-size: 0.95rem; }
+.gf-hook { margin: 0.3rem 0 0; font-style: italic; color: var(--ink-soft); }
+.gf-note { margin: 0.4rem 0 0; font-size: 0.85rem; color: var(--ink-soft); }
+@media (max-width: 52rem) { .gf-grid-wrap { grid-template-columns: 1fr; } }
+.gf-modes { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem; }
+.gf-mode { padding: 0.3rem 0.8rem; border: 2px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-weight: 650; border-radius: 999px; cursor: pointer; }
+.gf-mode[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+.gf-chart-box { min-width: 0; }
+.gf-theory { stroke: var(--accent); stroke-width: 2.4px; stroke-dasharray: 8 5; }
+.gf-theory-label { font-size: 12px; font-weight: 700; fill: var(--accent); }
+.gf-trend { fill: none; stroke: #c0392b; stroke-width: 2.4px; }
+.gf-dot { cursor: pointer; outline: none; }
+.gf-hit { fill: transparent; }
+.gf-pt { fill: #c0392b; stroke: var(--surface); stroke-width: 2px; transition: r 0.2s; }
+.gf-dot.is-on .gf-pt { r: 9px; fill: var(--ink); }
+.gf-dot:focus-visible .gf-pt { stroke: var(--ink); }

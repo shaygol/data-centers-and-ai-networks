@@ -45,7 +45,7 @@ test('every lab declares what its frame shows, and experiment ids are unique leg
       assert.ok(e.label && e.note, `${lab.id}/${e.id}`);
     }
     if (!lab.stub) {
-      assert.ok(lab.idea, `${lab.id} has a key idea`);
+      assert.ok(lab.idea || lab.idea === null, `${lab.id} has a key idea (or opts out with null)`);
       assert.ok(lab.experiments.length > 0, `${lab.id} has guided experiments`);
     }
   }

@@ -1,3 +1,15 @@
+.lab-congestion .cg-toolbar {
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  padding: 0.55rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.lab-congestion .cg-toolbar .controls { margin-bottom: 0; }
+.lab-congestion .cg-toolbar .controls + .controls {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--line-soft);
+}
 .lab-congestion .slider { flex: 1 1 18rem; max-width: 34rem; }
 .lab-congestion .slider-name { font-weight: 600; }
 .lab-congestion .slider input { flex-basis: 100%; width: 100%; margin: 0.2rem 0 0; }
@@ -7,41 +19,116 @@
 .lab-congestion .chart-panels {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.5rem;
+  gap: 1.25rem;
   align-items: start;
 }
 @media (max-width: 900px) {
   .lab-congestion .chart-panels { grid-template-columns: minmax(0, 1fr); }
 }
+.lab-congestion .chart-panel {
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  padding: 0.65rem 0.75rem;
+}
 .lab-congestion .chart-panel h3 { margin: 0; font-size: 1.25rem; }
-.lab-congestion .chart-subtitle { margin: 0 0 0.3rem; color: var(--ink-soft); font-size: 0.9rem; }
-.lab-congestion .chart-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line-soft); padding: 0.25rem; }
+.lab-congestion .chart-subtitle { margin: 0 0 0.35rem; color: var(--ink-soft); font-size: 0.9rem; }
+.lab-congestion .chart-scroll { overflow-x: auto; background: var(--bg); border: 1px solid var(--line-soft); padding: 0.25rem; }
 .lab-congestion .chart { display: block; width: 100%; min-width: 340px; height: auto; max-height: 42vh; }
+.lab-congestion .chart-panel .stats { margin-top: 0.55rem; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.45rem; }
+.lab-congestion .chart-panel .stat { background: var(--bg); border: 1px solid var(--line-soft); padding: 0.4rem 0.55rem; }
+.lab-congestion .stat-value.is-hot { color: var(--hot); }
+.lab-congestion .stat-value.is-ok { color: var(--own); }
 
 .lab-congestion .bar-under { fill: var(--own); }
 .lab-congestion .bar-over { fill: var(--hot); }
 .lab-congestion .bar-queue { fill: var(--accent); }
+.lab-congestion .bar-queue.is-marked { fill: var(--relay); }
+.lab-congestion .bar-ghost { fill: none; stroke: var(--line); stroke-width: 1.4px; stroke-dasharray: 3 3; opacity: 0.55; }
+.lab-congestion .chart-grid { stroke: var(--line-soft); stroke-width: 1px; stroke-dasharray: 2 4; opacity: 0.6; }
 .lab-congestion .chart-axis { stroke: var(--line); stroke-width: 2px; }
 .lab-congestion .chart-capacity { stroke: var(--ink); stroke-width: 3px; }
 .lab-congestion .chart-limit { stroke: var(--ink); stroke-width: 4px; }
 .lab-congestion .chart-average { stroke: var(--relay); stroke-width: 4px; stroke-dasharray: 12 8; }
+.lab-congestion .chart-ecn { stroke: var(--relay); stroke-width: 3px; stroke-dasharray: 8 6; }
+
+.lab-congestion .tick-cursor { fill: var(--accent-soft); opacity: 0; pointer-events: none; }
+.lab-congestion .tick-cursor.is-active { opacity: 0.55; }
+.lab-congestion .tick-hit { fill: transparent; cursor: crosshair; }
+.lab-congestion .tick-hit:focus-visible { outline: 2px solid var(--focus); }
 
 .lab-congestion .chart-label {
   fill: var(--ink);
-  font-size: 23px;
+  font-size: 22px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   paint-order: stroke;
-  stroke: var(--surface);
+  stroke: var(--bg);
   stroke-width: 5px;
   stroke-linejoin: round;
+  pointer-events: none;
 }
 @media (max-width: 560px) {
-  .lab-congestion .chart-label { font-size: 30px; }
+  .lab-congestion .chart-label { font-size: 28px; }
 }
 .lab-congestion .chart-label-soft { fill: var(--ink-soft); font-weight: 500; }
+.lab-congestion .chart-label-axis { font-size: 19px; }
 .lab-congestion .chart-label-hot { fill: var(--hot); }
 .lab-congestion .chart-label-average { fill: var(--relay); }
+.lab-congestion .chart-label-ecn { fill: var(--relay); }
 
-.lab-congestion .fix-list { margin: 0.7rem 0 0; padding: 0; list-style: none; max-width: 70rem; }
-.lab-congestion .fix-list li { margin-bottom: 0.15rem; }
+.lab-congestion .cg-inspector {
+  margin: 0.5rem 0 0;
+  padding: 0.4rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.lab-congestion .cg-fix-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.65rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.lab-congestion .cg-fix-card {
+  background: var(--surface);
+  border: 2px solid var(--line-soft);
+  padding: 0.55rem 0.7rem;
+  min-width: 0;
+}
+.lab-congestion .cg-fix-card.is-on { border-color: var(--own); }
+.lab-congestion .cg-fix-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.lab-congestion .cg-fix-pill {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--line-soft);
+  color: var(--ink-soft);
+}
+.lab-congestion .cg-fix-card.is-on .cg-fix-pill {
+  background: var(--own);
+  border-color: var(--own);
+  color: var(--surface);
+}
+.lab-congestion .cg-fix-about { margin: 0; font-size: 0.94rem; color: var(--ink-soft); }
+
+.lab-congestion .cg-paper-callout {
+  margin: 0 0 0.55rem;
+  padding: 0.45rem 0.7rem;
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  max-width: 70rem;
+}

@@ -26,6 +26,8 @@ export const CHAPTERS = [
   {
     id: 'legacy',
     year: '2004',
+    serversPerTor: '40',
+    oversub: { ratio: 10, text: '40 servers at 1G share 4×1G of uplinks', source: '§2, Fig. 2', why: 'High-bandwidth applications had to fit under a single ToR.' },
     name: 'Legacy network',
     hook: 'Google buys its cluster network from vendors: a layer of big routers over racks of servers.',
     debate: 'In 2004, a server could send to servers in other racks at only about 100 Mb/s. Your app needs much more. Where do you place its servers?',
@@ -40,37 +42,36 @@ export const CHAPTERS = [
       notes: ['500 ToRs = 20k servers ÷ 40 per ToR (our arithmetic).', 'The 4×1G uplink is from Fig. 5, where Firehose 1.1 runs beside this network.'],
     },
     improved: null,
-    challenges: [
-      { text: 'Only 100 Mb/s per server among 20k servers.', source: '§2' },
-      { text: 'Bandwidth-hungry apps had to fit under one ToR.', source: '§2' },
-      { text: 'Packet drops from incast and outcast were severe pain points.', source: '§2' },
-      { text: 'More bandwidth per server would have raised cost per server and shrunk the cluster.', source: '§2' },
-    ],
+    challenges: [],
     quote: {
       text: 'With bandwidth per host limited to 100 Mbps, packet drops associated with incast and outcast were severe pain points. Increasing bandwidth per server would have substantially increased cost per server and reduced cluster scale. We realized that existing commercial solutions could not meet our scale, management, and cost requirements.',
       cite: cite('Section 2', 'Background'),
       marks: ['limited to 100 Mbps', 'existing commercial solutions could not meet our scale, management, and cost requirements'],
     },
-    next: 'So Google decides to build its own: a Clos fabric from cheap merchant switch chips.',
+    next: null,
   },
   {
     id: 'firehose-1.0',
+    figureOnly: true,
+    noPassage: true,
     year: '2005',
+    serversPerTor: '20',
+    oversub: { ratio: 1, text: '20 servers at 1G (20G) over 2×10G of uplinks', source: '§3.1', why: 'The goal: 1 Gb/s of nonblocking bisection bandwidth to each of 10K servers.' },
     name: 'Firehose 1.0',
     hook: 'The first Clos. Google knows how to build servers, not switches.',
-    debate: 'It is 2005. Google has never built a switch, but it builds servers all the time. It has cheap switch chips in hand. Where does it put them, and what could go wrong?',
+    debate: 'It is 2005. Google has never built a switch, but it builds servers all the time, and it now has cheap switch chips. Where does it put them, and what could go wrong?',
     debateReply: 'In the thing it already knew how to build: a server. “Since we did not have any experience building switches but we did have experience building servers,” the chips went on a PCI board inside a server (§3.1, Figure 3, top right). What went wrong: servers crashed and were upgraded often, with long reboots, and the network went down with them. A server that housed a ToR cut off every server behind it.',
     topology: {
       tiers: [
         tier({ kind: 'spine', name: 'Spine blocks', count: 32, drawn: 4, each: '8×10G chips', down: '32×10G, one to every aggregation block' }),
         tier({ kind: 'agg', name: 'Aggregation blocks', count: 32, drawn: 4, each: '8×10G chips, 16 ToRs below', up: '32×10G, one to every spine block' }),
-        tier({ kind: 'tor', name: 'ToRs', count: 512, derived: true, drawn: 3, perAgg: 16, each: '4×10G chip', up: '2×10G to its aggregation block', down: '24×1G to servers' }),
+        tier({ kind: 'tor', name: 'ToRs', count: 512, derived: true, drawn: 3, perAgg: 16, each: '4×10G chip', up: '2×10G to its aggregation block', down: '20×1G to servers' }),
       ],
       links: [
         { between: ['agg', 'spine'], text: '1×10G per pair', note: 'Every aggregation block links to every spine block' },
         { between: ['tor', 'agg'], text: '2×10G up per ToR', note: 'Each ToR links only to its own aggregation block' },
       ],
-      servers: '24 servers per ToR, about 10K in the fabric',
+      servers: '20 servers per ToR, about 10K in the fabric',
       notes: ['512 ToRs = 32 aggregation blocks × 16 ToRs (our arithmetic).'],
     },
     inside: [
@@ -114,7 +115,11 @@ export const CHAPTERS = [
   },
   {
     id: 'firehose-1.1',
+    figureOnly: true,
+    noPassage: true,
     year: '2006',
+    serversPerTor: 'up to 40',
+    oversub: { ratio: 2, upto: true, text: 'Up to 40 servers at 1G over 4×10G of uplinks (two of them to the buddy ToR)', source: '§3.2', why: 'To scale to 20k machines the paper accepts “at most 2:1 oversubscription”.' },
     name: 'Firehose 1.1',
     hook: 'The first fabric in production, in its own chassis, and running next to the old network just in case.',
     debate: 'You are about to put an unproven network under search and ads. How do you protect yourself if it fails?',
@@ -123,11 +128,11 @@ export const CHAPTERS = [
       tiers: [
         tier({ kind: 'spine', name: 'Spine blocks', count: 32, drawn: 4, each: '8×10G chips', down: '32×10G, one to every aggregation block' }),
         tier({ kind: 'agg', name: 'Aggregation blocks', count: 32, drawn: 4, each: '16 linecards, 16 ToRs below', up: '32×10G, one to every spine block' }),
-        tier({ kind: 'tor', name: 'Buddied ToRs', count: 512, drawn: 3, perAgg: 16, pairs: true, side: '2×10G to its buddy', each: 'Paired with a buddy ToR: 16 per block = 8 pairs', up: '4×10G to the fabric, 4×1G to legacy', down: '48×1G to servers' }),
+        tier({ kind: 'tor', name: 'Buddied ToRs', count: 512, drawn: 3, perAgg: 16, pairs: true, side: '2×10G to its buddy', each: 'Paired with a buddy ToR: 16 per block = 8 pairs', up: '2×10G to the fabric, 4×1G to legacy', down: '48×1G to servers' }),
       ],
       links: [
         { between: ['agg', 'spine'], text: '1×10G per pair', note: 'Every aggregation block links to every spine block' },
-        { between: ['tor', 'agg'], text: '4×10G up per ToR', note: 'Fig. 4 splits it: 2×10G up and 2×10G to a buddy ToR' },
+        { between: ['tor', 'agg'], text: '2×10G up per ToR', note: 'Table 2 counts 4×10G per ToR: these 2×10G up plus 2×10G sideways to its buddy' },
       ],
       legacy: '4×1G from every ToR',
       servers: '48 servers per ToR, 512 racks',
@@ -143,16 +148,16 @@ export const CHAPTERS = [
       }, caption: 'Same spine block as Firehose 1.0: Fig. 4 redraws only the aggregation block. The boards are now linecards in a chassis, not cards inside servers.' },
       {
         of: 'agg', title: 'Inside one aggregation block', source: 'Fig. 4',
-        rows: [{ n: 8, unit: 'chip', label: 'Upper', word: 'linecards' }, { n: 8, unit: 'chip', label: 'Lower', word: 'linecards' }],
+        rows: [{ n: 8, unit: 'chip', label: 'Spine side', word: 'linecards' }, { n: 8, unit: 'chip', label: 'ToR side', word: 'linecards' }],
         // Traced from Fig. 4: each linecard has 4 links to the other row, not 8.
         mesh: [[0,0],[0,3],[0,4],[0,6],[1,1],[1,2],[1,5],[1,7],[2,0],[2,2],[2,5],[2,6],[3,1],[3,3],[3,4],[3,7],[4,0],[4,3],[4,4],[4,6],[5,1],[5,2],[5,5],[5,7],[6,0],[6,2],[6,5],[6,6],[7,1],[7,3],[7,4],[7,7]],
         top: '32×10G up, one to each spine block', bottom: null,
         tors: { pairs: 8, label: 'Buddied ToRs', side: 'Two side links (2×10G) join each ToR to its buddy',
           // Traced from Fig. 4 as [ToR, lower card]: buddies (ToRs 2k, 2k+1) never share a card.
           wiring: FH11_TORS, down: '48×1G to servers per ToR, plus 4×1G to the legacy network (Fig. 5)' },
-        key: 'Each square is one linecard with one 8×10G switch chip: 4 ports up, 4 down. Each yellow pair is two buddied ToRs: each ToR has 2×10G up into the block and 2×10G sideways to its buddy: the two purple links between them.',
-        caption: '16 linecards, now one block instead of two halves, but with 4 ports down a card can reach only 4 of the 8 cards below it: count the lines. The left 4 lower cards serve the left 8 ToRs, the right 4 the right 8. Table 2 lists 4×10G up per ToR; Fig. 4 labels them 2×10G up and 2×10G sideways to the buddy.',
-        note: 'All links are as drawn in Fig. 4. Each lower linecard takes 4 ToRs, one per down port; a ToR’s two uplinks land on two different cards, and its buddy uses two other cards.',
+        key: 'Each square is one linecard: a board with one 8×10G chip (4 ports up, 4 down) that plugs into a chassis. One chassis holds six (Fig. 4, photo), so the 16 cards of a block do not fit in one. Each yellow pair is two buddied ToRs.',
+        caption: 'Spine side: 8 linecards × 4 ports up = 32×10G, one to each spine block. ToR side: 8 linecards × 4 ports down = 32×10G, two to each of the 16 ToRs. Each card links to 4 of the 8 cards in the other row.',
+        note: 'A ToR’s two uplinks go to two different linecards, and its buddy uses two other linecards.',
       },
     ],
     insideDebates: [{
@@ -183,7 +188,12 @@ export const CHAPTERS = [
   },
   {
     id: 'watchtower',
+    figureOnly: true,
+    noPassage: true,
+    showInside: ['spine'],
     year: '2008',
+    serversPerTor: 'Not in paper',
+    oversub: { ratio: 1.2, text: '48×1G server ports over 4×10G of uplinks (Table 2); the server count is not in the paper', source: 'Table 2', why: '' },
     name: 'Watchtower',
     hook: 'Denser chips make a real switch chassis with a backplane possible, cabled with fiber.',
     debate: 'Firehose 1.1 worked. What would make you replace a network that works?',
@@ -207,8 +217,8 @@ export const CHAPTERS = [
         rows: [{ n: 8, unit: 'chip', label: 'Edge chips' }, { n: 8, unit: 'chip', label: 'Middle chips' }, { n: 8, unit: 'chip', label: 'Edge chips' }],
         mesh: 'full', top: null, bottom: null,
         groups: Array.from({ length: 8 }, (_, i) => ({ from: i, to: i, label: `Card ${i + 1}`, top: '8×10G', bottom: '8×10G' })),
-        key: 'Each dashed column is one linecard; each square is one 16×10G switch chip. Each card has 3 chips: 2 edge chips with 8 ports out on the front panel and 8 ports in, and 1 middle chip with all 16 ports in. 8 cards × 16 front ports = 128×10G.',
-        caption: 'Drawn like Fig. 6, unfolded: both edge chips’ front ports are really on the same front panel. Every line is a backplane trace, not a cable. An edge chip doesn’t feed only its own card’s middle chip: its 8 inside ports go one to each of the 8 middle chips. So any front port reaches any other through any of 8 middle chips, with as many paths inside as ports outside. That is why the chassis is all-to-all and nonblocking (NB in Table 2).',
+        key: 'Each dashed column is one linecard. Each card has three 16×10G chips: two face the front panel with 8 ports each, and one sits in the middle. 8 cards × 16 front ports = 128×10G.',
+        caption: 'Every line is a backplane trace, not a cable. Each edge chip links to all 8 middle chips, so any front port can reach any other through any of them. That is why the chassis is nonblocking (NB in Table 2).',
       },
       {
         of: 'agg', title: 'Inside one aggregation block', source: 'Table 2',
@@ -219,9 +229,9 @@ export const CHAPTERS = [
       },
     ],
     improved: [
-      { text: 'Next-generation 16×10G chips made a traditional chassis with a backplane possible.', source: '§3.2' },
-      { text: 'Fiber cabling: “substantially easier” to deploy than Firehose.', source: '§3.2' },
-      { text: 'Bigger fabrics: bisection 10T → 82T, and servers could get more than 1G.', source: '§3.2, Table 2' },
+      { text: 'Next-generation 16×10G chips made a traditional chassis with a backplane possible.', source: '§3.2', marks: ['16×10G chips', 'chassis with a backplane'] },
+      { text: 'Fiber cabling: “substantially easier” to deploy than Firehose.', source: '§3.2', marks: ['Fiber cabling', 'substantially easier'] },
+      { text: 'Bigger fabrics: bisection 10T → 82T, and more bandwidth to individual servers.', source: '§3.2, Table 2', marks: ['10T → 82T', 'more bandwidth to individual servers'] },
     ],
     challenges: [
       { text: 'Servers had ever more cores, and each one wanted more bandwidth.', source: '§3.2' },
@@ -236,7 +246,10 @@ export const CHAPTERS = [
   },
   {
     id: 'saturn',
+    noPassage: true,
     year: '2009',
+    serversPerTor: '20 (default)',
+    oversub: { ratio: 5, text: '20 servers at 10G over 4×10G of uplinks (default Pluto ToR)', source: '§3.2', why: 'The paper: about 2 Gbps per server on average, with bursts up to 10 Gbps.' },
     name: 'Saturn',
     hook: 'Bigger chips, bigger chassis, and for the first time a server can burst at 10 Gb/s.',
     debate: 'Watchtower already works. What pushes Google to a new generation only a year later?',
@@ -273,25 +286,37 @@ export const CHAPTERS = [
       },
     ],
     improved: [
-      { text: '24×10G chips: a 288-port non-blocking chassis and the single-chip Pluto ToR.', source: '§3.2' },
-      { text: 'Servers could burst at 10 Gb/s across the fabric for the first time.', source: '§3.2' },
-      { text: 'Bisection 82T → 207T.', source: 'Table 2' },
+      { text: '24×10G chips: a 288-port non-blocking chassis and a single-chip ToR (Pluto).', source: '§3.2', marks: ['288-port non-blocking chassis', 'single-chip ToR'] },
+      { text: 'Servers could burst at 10 Gb/s across the fabric for the first time.', source: '§3.2', marks: ['burst at 10 Gb/s', 'for the first time'] },
+      { text: 'Pluto ToR: 20 servers share 4×10G up, about 2 Gb/s each on average (5 Gb/s with 8×10G up and 16 servers).', source: '§3.2', marks: ['about 2 Gb/s each on average', '5 Gb/s'] },
+      { text: 'Bisection 82T → 207T.', source: 'Table 2', marks: ['82T → 207T'] },
     ],
     challenges: [
-      { text: 'Its goals were more server bandwidth and bigger clusters. The paper names no Saturn-specific failure.', source: '§3.2' },
-      { text: 'Each cluster was still its own fabric, under a separate inter-cluster layer. Jupiter goes after that next.', source: '§3.3' },
+      { text: 'The paper names no Saturn-specific failure. The aim was more server bandwidth and bigger clusters.', source: '§3.2' },
+      { text: 'Each cluster was still its own fabric, joined to the others by a separate layer. Jupiter replaces that layer with one fabric for the whole datacenter.', source: '§3.3' },
     ],
     quote: {
       text: 'In the default configuration, Pluto supports 20 servers with 4x10G provisioned to the cluster fabric for an average bandwidth of 2 Gbps for each server. For more bandwidth-hungry servers, we could configure the Pluto ToR with 8x10G uplinks and 16x10G to servers providing 5 Gbps to each server. Importantly, servers could burst at 10 Gbps across the fabric for the first time.',
       cite: cite('Section 3.2', 'Watchtower and Saturn'),
       marks: ['average bandwidth of 2 Gbps', '5 Gbps to each server', 'burst at 10 Gbps across the fabric for the first time'],
     },
-    followup: 'Average 2 Gb/s, burst 10 Gb/s. Why is the gap between the two acceptable?',
     next: 'Next step: one fabric for the whole datacenter, not one per cluster.',
   },
   {
     id: 'jupiter',
+    figureOnly: true,
+    noPassage: true,
+    stackFigures: true,
+    scope: true,
+    buildingBlocks: [
+      { text: 'Previous generation: the largest non-blocking chassis the silicon allowed: 12 linecards on a backplane, one 288-port switch.', source: '§3.2', marks: ['288-port switch'] },
+      { text: 'Jupiter: a middle path. The Centauri is a small 4RU chassis with four 16×40G chips, no backplane data connections, and every port on the front panel.', source: '§3.3', marks: ['no backplane data connections', 'every port on the front panel'] },
+      { text: 'Four Centauris make a Middle Block; eight Middle Blocks make an aggregation block.', source: '§3.3, Fig. 8' },
+      { text: 'The aim: introduce new technology in place (in situ), because forklifting clusters stranded hosts already in production.', source: '§3.3', marks: ['in place (in situ)'] },
+    ],
     year: '2012',
+    serversPerTor: '48 per ToR chip',
+    oversub: { ratio: 3, text: '48×10G to servers over 16×10G to the fabric, per ToR chip', source: '§3.3', why: 'Parts of the network were kept oversubscribed on purpose to save cost, for example the uplinks of a ToR (§6.1).' },
     name: 'Jupiter',
     hook: 'A 40G fabric for the whole datacenter, more than 6× the largest one before it, upgraded in place.',
     debate: 'Replacing old servers is routine. Why is replacing an old network so much harder?',
@@ -341,9 +366,9 @@ export const CHAPTERS = [
       },
     ],
     improved: [
-      { text: 'Dense 40G chips: one Clos across the whole datacenter, absorbing the inter-cluster layer.', source: '§3.3' },
-      { text: 'Bisection 207T → 1.3P, and servers could burst at 40G for the first time.', source: '§3.3, Table 2' },
-      { text: 'Maintenance units small enough that most apps can ignore network maintenance windows.', source: '§3.3' },
+      { text: 'Dense 40G chips: one Clos across the whole datacenter, absorbing the inter-cluster layer.', source: '§3.3', marks: ['Dense 40G chips', 'one Clos across the whole datacenter'] },
+      { text: 'Bisection 207T → 1.3P, and servers could burst at 40G for the first time.', source: '§3.3, Table 2', marks: ['207T → 1.3P', 'burst at 40G for the first time'] },
+      { text: 'Maintenance units small enough that most apps can ignore network maintenance windows.', source: '§3.3', marks: ['most apps can ignore network maintenance windows'] },
     ],
     challenges: [
       { text: 'Scale: more than 6× the largest existing fabric.', source: '§3.3' },
@@ -377,7 +402,48 @@ const FIELDS = [
 ];
 
 // Table 2, this generation beside the one before only. changed marks cells that differ.
+// Which words of a changed cell are new: a word-level diff of the cell before and after.
+// If words were only removed, nothing in the new cell is new, so the whole cell is marked.
+export function diffCell(before, now) {
+  const a = String(before ?? '').split(/\s+/).filter(Boolean);
+  const b = String(now ?? '').split(/\s+/).filter(Boolean);
+  const L = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+  for (let i = a.length - 1; i >= 0; i--) for (let j = b.length - 1; j >= 0; j--) L[i][j] = a[i] === b[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  const kept = new Array(b.length).fill(false);
+  for (let i = 0, j = 0; i < a.length && j < b.length; ) {
+    if (a[i] === b[j]) { kept[j++] = true; i++; } else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++;
+  }
+  let changed = kept.map((k) => !k);
+  if (!changed.some(Boolean)) changed = changed.map(() => true);
+  return b.map((text, k) => ({ text, changed: changed[k] }));
+}
+
+// The generations as a growth series: Table 2's bisection bandwidth and chip, parsed to numbers.
+export function growthSeries() {
+  const bps = (t) => {
+    const m = /([\d.]+)\s*([TP])/.exec(t);
+    return m ? Number(m[1]) * (m[2] === 'P' ? 1e15 : 1e12) : null;
+  };
+  const chipOf = (t) => {
+    const m = /^(\d+)x(\d+)G/.exec(t);
+    return m ? { ports: Number(m[1]), speed: Number(m[2]) } : null;
+  };
+  return CHAPTERS.map((c) => {
+    const t = table(c.id);
+    return { id: c.id, name: c.name, year: c.year, hook: c.hook, bisection: bps(t.bisection), chip: chipOf(t.merchantSilicon), fabricSpeed: t.fabricSpeed, hostSpeed: t.hostSpeed, serversPerTor: c.serversPerTor, oversub: c.oversub };
+  });
+}
+
 export function comparison(c) {
+  const result = tableComparison(c);
+  const before = previous(c);
+  // Servers per ToR comes from the paper's text, not from Table 2.
+  const extra = { label: 'Servers per ToR', before: before ? before.serversPerTor : null, now: c.serversPerTor, changed: before ? before.serversPerTor !== c.serversPerTor : false };
+  result.rows.splice(result.rows.findIndex((r) => r.label === 'ToR') + 1, 0, extra);
+  return result;
+}
+
+function tableComparison(c) {
   const before = previous(c);
   const now = table(c.id);
   const then = before ? table(before.id) : null;

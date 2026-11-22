@@ -2,13 +2,16 @@
 // a debate question, the topology, then (on reveal) what improved and what went wrong,
 // and Table 2 for this generation beside the one before only.
 import { h, heldBack, debateBox } from '../../shell/ui.js';
-import { renderBlock } from '../../panels/walk/blocks.js';
-import { CHAPTERS, chapter, previous, comparison } from './model.js';
-import { topologyDiagram, layerTable } from './drawing.js';
+import { renderBlock, markText } from '../../panels/walk/blocks.js';
+import { CHAPTERS, chapter, previous, comparison, diffCell } from './model.js';
+import { topologyDiagram } from './drawing.js';
+import { scopeDiagram } from './scope.js';
 import { insideBlocks } from './inside.js';
 import { legacyImage, figBlock, CHAPTER_FIGS } from '../../editions/v2/figures.js';
 
-const sourced = (items) => h('ul', { class: 'st-list' }, items.map((i) => h('li', {}, i.text, ' ', h('span', { class: 'st-source' }, `(${i.source})`))));
+const sourced = (items) => h('ul', { class: 'st-list' }, items.map((i) => h('li', {}, i.marks ? markText(i.text, i.marks) : i.text, ' ', h('span', { class: 'st-source' }, `(${i.source})`))));
+
+const nowCell = (r, two) => (!two || !r.changed ? [r.now] : diffCell(r.before, r.now).flatMap((s, k) => [k ? ' ' : null, s.changed ? h('mark', { class: 'st-diff' }, s.text) : s.text]));
 
 function compareTable(c) {
   const { head, rows } = comparison(c);
@@ -25,11 +28,12 @@ function compareTable(c) {
         'tbody',
         {},
         rows.map((r) =>
-          h('tr', { class: r.changed ? 'is-changed' : '' }, h('th', { scope: 'row' }, r.label), two ? h('td', {}, r.before) : null, h('td', {}, r.now)),
+          h('tr', { class: r.changed ? 'is-changed' : '' }, h('th', { scope: 'row' }, r.label), two ? h('td', {}, r.before) : null, h('td', {}, ...nowCell(r, two))),
         ),
       ),
     ),
-    two ? h('p', { class: 'st-compare-key' }, 'Bold rows changed.') : null,
+    two ? h('p', { class: 'st-compare-key' }, 'Bold rows changed; yellow marks what changed. Servers per ToR is from the paper’s text, not Table 2.') : null,
+    c.buildingBlocks ? h('div', { class: 'st-blocks' }, h('h4', {}, 'How the building blocks changed'), sourced(c.buildingBlocks)) : null,
   );
 }
 
@@ -38,12 +42,12 @@ function chapterView(c, go) {
   const index = CHAPTERS.indexOf(c);
 
   const reveal = heldBack(
-    { id: 'st-reveal', label: before ? 'Reveal: what improved, and what went wrong' : 'Reveal: what went wrong' },
+    { id: 'st-reveal', label: before ? 'Reveal: what improved, and what went wrong' : c.challenges.length ? 'Reveal: what went wrong' : 'Reveal: the paper’s words' },
     c.improved
       ? h('section', { class: 'st-improved' }, h('h4', {}, `Improved over ${before.name}`), sourced(c.improved))
       : null,
-    h('section', { class: 'st-challenges' }, h('h4', {}, 'Challenges'), sourced(c.challenges)),
-    h('div', { class: 'walk-clips' }, renderBlock({ type: 'quote', lead: null, ...c.quote })),
+    c.challenges.length ? h('section', { class: 'st-challenges' }, h('h4', {}, 'Challenges'), sourced(c.challenges)) : null,
+    c.noPassage ? null : h('div', { class: 'walk-clips' }, renderBlock({ type: 'quote', lead: null, ...c.quote })),
     c.followup ? renderBlock({ type: 'followup', question: c.followup }) : null,
     c.next ? h('p', { class: 'st-next-teaser' }, h('b', {}, 'Where this leads: '), c.next) : null,
   );
@@ -61,11 +65,11 @@ function chapterView(c, go) {
         'div',
         { class: 'st-left' },
         c.id === 'legacy' ? legacyImage() : topologyDiagram(c),
+        c.scope ? scopeDiagram() : null,
         insideBlocks(c),
-        (c.insideDebates ?? []).map((d) => debateBox(d.question, d.reply, d.label)),
-        layerTable(c),
-        figBlock(CHAPTER_FIGS[c.id]),
-        c.topology.notes.length ? h('ul', { class: 'st-notes' }, c.topology.notes.map((n) => h('li', {}, n))) : null,
+        (c.figureOnly ? [] : c.insideDebates ?? []).map((d) => debateBox(d.question, d.reply, d.label)),
+        figBlock(CHAPTER_FIGS[c.id], c.stackFigures),
+        c.topology.notes.length && !c.figureOnly ? h('ul', { class: 'st-notes' }, c.topology.notes.map((n) => h('li', {}, n))) : null,
       ),
       h('div', { class: 'st-right' }, compareTable(c), reveal),
     ),
