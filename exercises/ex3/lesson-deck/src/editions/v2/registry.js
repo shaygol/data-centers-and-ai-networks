@@ -10,7 +10,8 @@ import congestionLab from '../../labs/congestion/view.js';
 import traffic from '../../labs/traffic/view.js';
 import practice from '../../panels/practice/view.js';
 import openflow from '../../panels/openflow/view.js';
-import { homework, rng, paperTab } from '../../panels/homework/view.js';
+import { homework, paperTab } from '../../panels/homework/view.js';
+import rng from '../../panels/rng/view.js';
 import { themeToggle } from './theme.js';
 
 // Quotes cite their section as a chip ("§3.1"), here only.
@@ -19,10 +20,19 @@ useSectionChips();
 // v2 keeps presenter instructions in the lesson plan, so the shared Clos lab drops its one on-screen cue here only.
 const clos = {
   ...closLab,
-  debate: { question: 'T1 to T7 has 4 equal-cost paths, one through each spine. If one spine fails, how much capacity do we lose?' },
+  debate: {
+    question: 'T1 to T7 has 4 equal-cost paths, one through each spine. If one spine fails, how much capacity do we lose?',
+    reply: 'Losing 1 of 4 spines removes 4 of 16 spine links. At half rate nothing drops yet, though links on the remaining spine double from 43% to 86%. At 100% rate, only 58% fits. In Jupiter’s largest fabric (256 spine blocks, Fig. 8), one block is only ~0.4% of spine capacity.',
+  },
   experiments: closLab.experiments.map((e) => (e.id === 'healthy' ? { ...e, note: e.note.replace(' Guess first, then click Spine failure.', '') } : e)),
 };
-const congestion = { ...congestionLab, debate: { question: 'Average utilization is low. Will anything drop?' } };
+const congestion = {
+  ...congestionLab,
+  debate: {
+    question: 'Average utilization is low. Will anything drop?',
+    reply: 'Microbursts still overflow small commodity buffers: with 25% average utilization over 60 ticks, a 90-packet burst spikes load to 410% on the busiest tick and drops 43 packets out of a 20-packet buffer. Combining ECN, a bounded congestion window, and dynamic buffer sharing cuts peak load to 130% and eliminates drops across 9 ticks (Jupiter §6.1).',
+  },
+};
 
 export const VERSION_LABEL = 'Facilitator deck · v3 · Nov 2026';
 
