@@ -28,11 +28,11 @@ export function legacyImage() {
   return h('figure', { class: 'paper-fig legacy-fig' }, img, h('figcaption', {}, 'The 2004 legacy network. Click to enlarge.'));
 }
 
-export function figBlock(nums) {
+export function figBlock(nums, stacked = false) {
   if (!nums || !nums.length) return null;
   return h(
     'div',
-    { class: 'paper-figs' },
+    { class: stacked ? 'paper-figs is-stacked' : 'paper-figs' },
     nums.map((n) => {
       const alt = `Figure ${n} from the paper`;
       const img = h('img', { src: PAPER_FIGS[n], alt, loading: 'lazy' });

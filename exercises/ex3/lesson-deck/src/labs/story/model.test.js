@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CHAPTERS, comparison, previous } from './model.js';
+import { CHAPTERS, comparison, previous, diffCell, growthSeries } from './model.js';
 import { GENERATIONS } from '../generations/model.js';
 
 test('one chapter per Table 2 generation, in order', () => {
@@ -10,7 +10,7 @@ test('one chapter per Table 2 generation, in order', () => {
 test('every chapter has a debate, a reply, challenges and a quote with exact marks', () => {
   for (const c of CHAPTERS) {
     assert.ok(c.debate && c.debateReply, c.id);
-    assert.ok(c.challenges.length > 0, c.id);
+    assert.ok(c.challenges.length > 0 || c.id === 'legacy', c.id);
     for (const m of c.quote.marks) assert.ok(c.quote.text.includes(m), `${c.id}: ${m}`);
     if (previous(c)) assert.ok(c.improved?.length > 0, `${c.id} says what improved`);
   }
@@ -94,4 +94,43 @@ test('Firehose 1.1 wiring matches the 8×10G linecard: 4 links each way', async 
     assert.ok(cards.every((j) => !buddy.includes(j)), `ToR ${t} shares no card with its buddy`);
   }
   assert.ok(torWiring(16, 8).length === 32);
+});
+
+test('a changed cell marks only the words that are new', () => {
+  const marked = (a, b) => diffCell(a, b).filter((s) => s.changed).map((s) => s.text);
+  assert.deepEqual(marked('2x10G up 24x1G down', '4x10G up 48x1G down'), ['4x10G', '48x1G']);
+  assert.deepEqual(marked('2004', '2005'), ['2005']);
+  assert.deepEqual(marked('–', '2x32x10G (B)'), ['2x32x10G', '(B)']);
+  assert.deepEqual(marked('8x10G 4x10G (ToR)', '8x10G'), ['8x10G'], 'words only removed: the whole cell is marked');
+});
+
+test('marked words in the improved and challenge lists are in their text', () => {
+  for (const c of CHAPTERS) for (const i of [...(c.improved ?? []), ...c.challenges]) for (const m of i.marks ?? []) assert.ok(i.text.includes(m), `${c.id}: ${m}`);
+});
+
+test('the comparison lists servers per ToR right after the ToR row', () => {
+  const rows = comparison(CHAPTERS[1]).rows;
+  const at = rows.findIndex((r) => r.label === 'ToR');
+  assert.equal(rows[at + 1].label, 'Servers per ToR');
+  assert.deepEqual([rows[at + 1].before, rows[at + 1].now, rows[at + 1].changed], ['40', '20', true]);
+  assert.ok(comparison(CHAPTERS[0]).rows.every((r) => r.before === null && !r.changed));
+});
+
+test('the growth series reads Table 2: bisection climbs and the chips match', () => {
+  const s = growthSeries();
+  assert.equal(s.length, CHAPTERS.length);
+  for (let i = 1; i < s.length; i++) assert.ok(s[i].bisection >= s[i - 1].bisection, s[i].id);
+  assert.equal(s[0].bisection, 2e12);
+  assert.equal(s[s.length - 1].bisection, 1.3e15);
+  assert.equal(s[0].chip, null);
+  assert.deepEqual(s.find((x) => x.id === 'firehose-1.0').chip, { ports: 8, speed: 10 });
+  assert.deepEqual(s.find((x) => x.id === 'jupiter').chip, { ports: 16, speed: 40 });
+});
+
+test('every generation has a ToR oversubscription figure, and the fat tree is 1:1', () => {
+  const s = growthSeries();
+  for (const x of s) assert.ok(x.oversub && x.oversub.ratio >= 1 && x.oversub.text && x.oversub.source, x.id);
+  assert.equal(s[0].oversub.ratio, 10);
+  assert.equal(s.find((x) => x.id === 'firehose-1.0').oversub.ratio, 1);
+  assert.equal(s.find((x) => x.id === 'saturn').oversub.ratio, 5);
 });

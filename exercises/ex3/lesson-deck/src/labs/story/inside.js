@@ -207,11 +207,13 @@ function panel(view) {
 }
 
 export function insideBlocks(c) {
-  if (!c.inside?.length) return null;
+  // A chapter that shows figures only can still open up the blocks named in showInside.
+  const panels = c.figureOnly ? (c.inside ?? []).filter((p) => c.showInside?.includes(p.of)) : c.inside ?? [];
+  if (!panels.length) return null;
   return h(
     'section',
     { class: 'st-inside', 'aria-label': 'What the blocks are made of' },
-    h('h4', { class: 'st-inside-head' }, 'What is inside the blocks'),
-    c.inside.map(panel),
+    c.figureOnly ? null : h('h4', { class: 'st-inside-head' }, 'What is inside the blocks'),
+    panels.map(panel)
   );
 }

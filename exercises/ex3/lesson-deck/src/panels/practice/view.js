@@ -1,10 +1,14 @@
 // Theory vs practice (v2): Unit 1's fat tree on one side, Jupiter's reality on the other.
 // Students name what would break first; each card opens only when the class gets there.
-import { h, jumpButton, debateBox } from '../../shell/ui.js';
+import { h, debateBox } from '../../shell/ui.js';
 import { renderBlock } from '../walk/blocks.js';
-import { passageBlocks } from '../../editions/v2/debate.js';
+import { zoomFigure } from '../../editions/v2/figures.js';
+import fatTree from '../../editions/v2/figs/fat-tree.jpg';
+import fig8 from '../../editions/v2/figs/fig-8.jpg';
 import { GAPS } from './model.js';
 import { revealDeck } from './reveal.js';
+import { growTheFabric } from '../../labs/story/grow.js';
+import { growthSeries } from '../../labs/story/model.js';
 
 // The phrases each card's quote highlights (Shay's deck).
 const GAP_MARKS = {
@@ -13,10 +17,7 @@ const GAP_MARKS = {
   'full-bisection': ['intentionally kept oversubscribed to save cost'],
   wiring: ['thousands of cables invariably leads to multiple cabling errors'],
   'cabling-cost': ['deployment challenges with the external copper cabling'],
-  'even-load': ['imperfect flow hashing especially during failures'],
-  buffers: ['limited buffering'],
   control: ['did not converge without manual intervention', 'contended for limited CPU resources on embedded switch CPUs', 'snowball effect'],
-  scale: ['principally limited by failure domain considerations and control plane scalability'],
 };
 
 // "Jupiter §6.1 (ii); fixes: …" becomes a §6.1 chip and the rest of the line.
@@ -30,6 +31,21 @@ function body(gap) {
   ];
 }
 
+// Unit 1's fat tree beside Jupiter's building blocks: the same idea, then the gaps below.
+const theoryPractice = () => {
+  const pic = (src, alt, label, cite) => {
+    const img = h('img', { src, alt, loading: 'lazy' });
+    img.addEventListener('click', () => zoomFigure(src, alt));
+    return h('figure', { class: 'pp-fig' }, h('p', { class: 'pp-label' }, label), img, h('figcaption', {}, cite));
+  };
+  return h(
+    'div',
+    { class: 'practice-pair' },
+    pic(fatTree, 'A fat tree with k = 4: four pods, each with two aggregation and two edge switches, under four core switches', 'In theory: a fat tree (Unit 1)', 'Al-Fares et al., Figure 3. Click to enlarge.'),
+    pic(fig8, 'Jupiter building blocks: merchant silicon, Centauri, Middle Block, spine block and aggregation block', 'In practice: Jupiter (Unit 3)', 'Jupiter, Figure 8. Click to enlarge.'),
+  );
+};
+
 function mount(root, ctx) {
   const deck = revealDeck({
     key: 'practice',
@@ -38,16 +54,11 @@ function mount(root, ctx) {
   });
   root.append(
     debateBox('In Unit 1, the fat tree looked perfect on paper. Which of its assumptions break when Google builds it for real?'),
-    passageBlocks('s3'),
-    h('h3', { class: 'deck-title' }, 'Nine gaps'),
+    theoryPractice(),
+    h('h3', { class: 'deck-title' }, 'Grow the fabric: what Google built, 2004 to 2012'),
+    growTheFabric(growthSeries()),
+    h('h3', { class: 'deck-title' }, 'Six gaps'),
     deck,
-    h(
-      'div',
-      { class: 'practice-labs' },
-      h('p', {}, 'Two cards have a demo: the uneven load after a failure, and drops at low average load.'),
-      jumpButton(ctx, { tab: 'clos', arg: 'link-failure', returnArg: 'top', label: 'Open Clos failures: link failure' }),
-      jumpButton(ctx, { tab: 'congestion', arg: 'burst-low-load', returnArg: 'top', label: 'Open Congestion: burst at low load' }),
-    ),
   );
   return { show() {} };
 }

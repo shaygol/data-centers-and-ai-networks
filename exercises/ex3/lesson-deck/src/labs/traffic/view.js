@@ -122,8 +122,8 @@ function mount(body, ctx) {
 
   body.append(
     debateBox(
-      'Figure 1 stops in 2014, doubling about every year. Did traffic keep doubling every year?',
-      'Google stopped publishing the series, so no public source shows its own traffic. The industry data does not show yearly doubling: Cisco counts global data center traffic at 3.4 ZB per year in 2014, about 6.8 ZB in 2016 and a forecast of about 20.5 ZB in 2021, a doubling every 2 to 3 years. One Jupiter fabric went from more than 1 Pb/s (2015) to more than 6 Pb/s (2022).',
+      'Until 2014, server traffic doubled about every year. Did it keep doubling after that?',
+      'Google stopped publishing the series, so no public source shows its own traffic. Industry data does not show yearly doubling. Cisco counts global data center traffic at 3.4 ZB per year in 2014 and about 6.8 ZB in 2016, and forecasts about 20.5 ZB for 2021: a doubling every 2 to 3 years. One Jupiter fabric grew from over 1 Pb/s in 2015 to over 6 Pb/s in 2022. For scale, 1 ZB (zettabyte) is 10²¹ bytes, a billion terabytes, and 1 Pb/s (petabit per second) is 10¹⁵ bits every second, a million gigabits.',
     ),
     passageBlocks('s1', [0, 1]),
     h('div', { class: 'tg-layout' }, trafficImage()),
@@ -210,8 +210,8 @@ export default {
   source: 'Jupiter Fig. 1, §2, Table 2; Google Cloud blog 2022, 2024',
   hidden: false,
   noStrip: true,
-  idea: 'Server traffic grew 50x from 2008 to 2014, doubling every 12–15 months. The paper stops there.',
-  illustration: 'The curve up to Nov 2014 is the paper’s Figure 1. What comes after is a sketch, not published data: Google has not published traffic since 2014. The data table below lists the published figures we do have.',
+  idea: null,
+  illustration: null,
   defaultExperiment: 'figure-1',
   experiments: [
     { id: 'figure-1', label: 'The paper’s Figure 1', note: 'Traffic and fabric capacity as the paper reports them. If traffic kept this pace, how big is it today?' },

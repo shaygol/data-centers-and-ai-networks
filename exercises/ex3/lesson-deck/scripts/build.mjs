@@ -46,7 +46,7 @@ async function bundleJs(registry) {
     charset: 'utf8',
     legalComments: 'none',
     // Paper figures ship inside the page, so it still works offline.
-    loader: { '.jpg': 'dataurl' },
+    loader: { '.jpg': 'dataurl', '.png': 'dataurl' },
     write: false,
     plugins: [registryPlugin(registry)],
   });

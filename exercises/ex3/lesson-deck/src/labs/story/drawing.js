@@ -28,7 +28,7 @@ function box(cls, cx, y, w, hgt, text) {
 }
 
 function layerName(t, y, hgt) {
-  const count = t.count == null ? 'count not in paper' : `${t.count.toLocaleString('en-US')}${t.derived ? ' (derived)' : ''}`;
+  const count = t.count == null ? 'count not in paper' : t.count.toLocaleString('en-US');
   return svg(
     'g',
     { class: 'st-layer' },
@@ -97,11 +97,11 @@ function clos(topo, zoom = false) {
 
   // S1 and A1 are opened up in "What is inside the blocks" below the diagram.
   if (zoom) {
-    for (const y of [Y.spine, Y.agg]) {
+    for (const y of [Y.spine, Y.agg].filter((_, k) => zoom === true || zoom?.includes(k ? 'agg' : 'spine'))) {
       g.append(svg('rect', { class: 'st-zoom-ring', x: BLOCK_X[0] - BLOCK.w / 2 - 6, y: y - 6, width: BLOCK.w + 12, height: BLOCK.h + 12, rx: 7 }));
     }
-    g.append(svg('text', { class: 'st-zoom-label', x: BLOCK_X[0] - BLOCK.w / 2 - 8, y: Y.spine + BLOCK.h + 22, 'text-anchor': 'start' }, 'inside ↓'));
-    g.append(svg('text', { class: 'st-zoom-label', x: BLOCK_X[0] + BLOCK.w / 2 + 10, y: Y.agg + 14, 'text-anchor': 'start' }, 'inside ↓'));
+    if (zoom === true || zoom?.includes('spine')) g.append(svg('text', { class: 'st-zoom-label', x: BLOCK_X[0] - BLOCK.w / 2 - 8, y: Y.spine + BLOCK.h + 22, 'text-anchor': 'start' }, 'inside ↓'));
+    if (zoom === true || zoom?.includes('agg')) g.append(svg('text', { class: 'st-zoom-label', x: BLOCK_X[0] + BLOCK.w / 2 + 10, y: Y.agg + 14, 'text-anchor': 'start' }, 'inside ↓'));
   }
   blockLabels(spine).forEach((text, i) => g.append(box('st-box st-spine', BLOCK_X[i], Y.spine, BLOCK.w, BLOCK.h, text)));
   blockLabels(agg).forEach((text, i) => g.append(box('st-box st-agg', BLOCK_X[i], Y.agg, BLOCK.w, BLOCK.h, text)));
@@ -164,7 +164,7 @@ function legacy(topo) {
 }
 
 export function topologyDiagram(c) {
-  const { g, height } = c.id === 'legacy' ? legacy(c.topology) : clos(c.topology, Boolean(c.inside?.length));
+  const { g, height } = c.id === 'legacy' ? legacy(c.topology) : clos(c.topology, c.figureOnly ? c.showInside : Boolean(c.inside?.length));
   return h(
     'div',
     { class: 'st-diagram-wrap' },
@@ -172,31 +172,6 @@ export function topologyDiagram(c) {
       'svg',
       { class: 'st-diagram', viewBox: `0 0 ${W} ${height}`, role: 'img', 'aria-label': `${c.name} topology, drawn from Table 2 and the paper’s figures` },
       g,
-    ),
-  );
-}
-
-// The same facts as the drawing, as a table that stays readable on any screen.
-export function layerTable(c) {
-  const rows = [...c.topology.tiers].map((t) =>
-    h(
-      'tr',
-      {},
-      h('th', { scope: 'row' }, t.name),
-      h('td', {}, t.count == null ? h('span', { class: 'st-unknown' }, 'Not in paper') : `${t.count.toLocaleString('en-US')}${t.derived ? '*' : ''}`),
-      h('td', {}, t.each ?? '–'),
-      h('td', {}, [t.up, t.down].filter(Boolean).join(' · ') || '–'),
-    ),
-  );
-  rows.push(h('tr', {}, h('th', { scope: 'row' }, 'Servers'), h('td', { colspan: 3 }, c.topology.servers)));
-  return h(
-    'div',
-    { class: 'st-table-wrap' },
-    h(
-      'table',
-      { class: 'st-layers' },
-      h('thead', {}, h('tr', {}, h('th', { scope: 'col' }, 'Layer'), h('th', { scope: 'col' }, 'How many'), h('th', { scope: 'col' }, 'Each one'), h('th', { scope: 'col' }, 'Connects'))),
-      h('tbody', {}, rows),
     ),
   );
 }

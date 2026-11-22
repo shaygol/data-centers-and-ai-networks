@@ -94,7 +94,7 @@ related notes and a second view that orders the notes by session. It keeps its d
 
 ## In class (suggested)
 
-1. Which faults did people find first, and which took longest?
+1. What were the five faults in the JR-16 fabric?
 2. Explain Q1: why is "T7's software crashed" right and "two cable faults" or "lost power" wrong? (PHY up on
    every T7 port; ND is also the keepalive.)
 3. Explain Q2: SP3 p3 looks exactly like a crashed peer from SP3. What did AG3 see?

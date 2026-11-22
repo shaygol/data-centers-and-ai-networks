@@ -3,6 +3,20 @@
 import { h, svg } from '../../shell/ui.js';
 import { renderBlock } from '../walk/blocks.js';
 import { debateBox } from '../../editions/v2/debate.js';
+import { createClock } from './clock.js';
+import faultsImage from '../../editions/v2/figs/jr16-faults.png';
+
+// The five faults of the JR-16 homework, as the answer picture plus one short sentence each.
+const FAULT_SENTENCES = [
+  "Swapped cables on AG3: the d1 and d2 cables were swapped, so ND flags a miswire on all four ends.",
+  "T4 cable in the wrong block: T4 p2 landed on AG4 d4 instead of AG2 d4, so AG2 d4 and T8 p2 have no cable (link down).",
+  "One-way link: SP3 p3 and AG3 u3 hear light in one direction only, so SP3 looks like a silent peer.",
+  "High error rate: SP1 p2 and AG2 u1 are up and cabled correctly, but ND shows a high error rate.",
+  "T7 software crashed: every port facing T7 has PHY up but no ND, so the hardware is alive and the software is down."
+];
+function faultsAnswer() {
+  return h("div", { class: "hw-answer" }, h("img", { src: faultsImage, alt: "JR-16 fabric with the five faults numbered 1 to 5 on the links and switches", style: "max-width:100%;height:auto" }), h("ol", {}, FAULT_SENTENCES.map((t) => h("li", {}, t))));
+}
 
 const HW_SP = ["SP1", "SP2", "SP3", "SP4"];
 const HW_AG = ["AG1", "AG2", "AG3", "AG4"];
@@ -132,9 +146,10 @@ function mountHomework(root, ctx) {
   const PAIRS = [["T1", "T6"], ["T3", "T5"], ["T2", "T8"]];
   const fx = svg("g", { class: "hw-fx" });
   diagram.append(fx);
-  let timers = [];
-  let playing = false;
-  const later = (ms, fn) => timers.push(setTimeout(fn, ms));
+  const clock = createClock();
+  let started = false;
+  let slow = false;
+  const later = (ms, fn) => clock.later(ms, fn);
   const fly = (pts, cls, dur, at) => later(at, () => {
     const c = svg("circle", { class: `hw-pk ${cls}`, r: 4.5 }, svg("animateMotion", { begin: "indefinite", dur: `${dur}s`, fill: "freeze", path: "M" + pts.map((q) => q.join(",")).join(" L") }));
     fx.append(c);
@@ -147,45 +162,76 @@ function mountHomework(root, ctx) {
     later(ms, () => t.remove());
   };
   function round() {
-    if (!playing) return;
+    if (!clock.running) return;
     if (diagram.getBoundingClientRect().width === 0) {
       later(500, round);
       return;
     }
+    const s = slow ? 3 : 1;
     {
-      Object.keys(HW_POS).forEach((id, i) => fly([[863, 70], HW_POS[id]], "lsd", 0.7, i * 40));
+      Object.keys(HW_POS).forEach((id, i) => fly([[863, 70], HW_POS[id]], "lsd", 0.7 * s, i * 40 * s));
       PAIRS.forEach(([a, b], k) => {
-        const t0 = 1500 + k * 3000;
+        const t0 = (1500 + k * 3000) * s;
         later(t0, () => {
-          tag([HW_POS[a][0], HW_POS[a][1] - 20], `${a} → ${b}`, 2800);
-          tag([HW_POS[b][0], HW_POS[b][1] - 20], `to ${b}`, 2800);
+          tag([HW_POS[a][0], HW_POS[a][1] - 20], `${a} → ${b}`, 2800 * s);
+          tag([HW_POS[b][0], HW_POS[b][1] - 20], `to ${b}`, 2800 * s);
         });
-        equalCost(a, b).forEach((path, j) => fly(path.map((n) => HW_POS[n]), "", 0.42 * (path.length - 1), t0 + j * 110));
+        equalCost(a, b).forEach((path, j) => fly(path.map((n) => HW_POS[n]), "", 0.42 * (path.length - 1) * s, t0 + j * 110 * s));
       });
     }
-    later(10800, round);
+    later(10800 * s, round);
   }
   const playBtn = h("button", { type: "button", class: "hw-play", id: "hw-play" }, "Pause traffic");
+  const speedBtn = h("button", { type: "button", class: "hw-play hw-speed", id: "hw-speed", "aria-pressed": "false", title: "Toggle slow motion (0.33×)" }, "Slow motion");
+  const controls = h("div", { class: "hw-controls" }, playBtn, speedBtn);
+
   const setPlaying = (on) => {
-    playing = on;
-    timers.forEach(clearTimeout);
-    timers = [];
-    fx.replaceChildren();
-    playBtn.textContent = on ? "Pause traffic" : "Play traffic";
-    playBtn.setAttribute("aria-pressed", String(on));
-    if (on) round();
+    if (on) {
+      try { if (diagram.animationsPaused?.()) diagram.unpauseAnimations(); } catch (e) { }
+      clock.resume();
+      if (!started || clock.pending === 0) {
+        started = true;
+        round();
+      }
+      playBtn.textContent = "Pause traffic";
+      playBtn.setAttribute("aria-pressed", "true");
+    } else {
+      clock.pause();
+      try { diagram.pauseAnimations?.(); } catch (e) { }
+      playBtn.textContent = "Resume traffic";
+      playBtn.setAttribute("aria-pressed", "false");
+    }
   };
-  playBtn.addEventListener("click", () => setPlaying(!playing));
+
+  const setSlow = (on) => {
+    slow = on;
+    speedBtn.textContent = slow ? "Normal speed" : "Slow motion";
+    speedBtn.setAttribute("aria-pressed", String(slow));
+    speedBtn.setAttribute("title", slow ? "Switch to normal speed (1×)" : "Toggle slow motion (0.33×)");
+    clock.clear();
+    fx.replaceChildren();
+    if (clock.running) {
+      round();
+    } else {
+      setPlaying(true);
+    }
+  };
+
+  playBtn.addEventListener("click", () => setPlaying(!clock.running));
+  speedBtn.addEventListener("click", () => setSlow(!slow));
   if (!reduced) setPlaying(true);
-  else playBtn.hidden = true;
+  else {
+    playBtn.hidden = true;
+    speedBtn.hidden = true;
+  }
   const clip = (text, cite, marks) => h("div", { class: "walk-clips" }, renderBlock({ type: "quote", lead: null, text, cite: cite, marks }));
   const prompts = h(
     "ol",
     { class: "hw-prompts" },
-    ["What was hard?", "What did you like?", "Where did you get stuck?"].map((t) => h("li", {}, t))
+    ["How did you find the faults?", "What helped you most?", "Where did you get stuck?"].map((t) => h("li", {}, t))
   );
   root.append(
-    h("div", { class: "hw-grid" }, h("div", { class: "hw-map" }, diagram, h("p", { class: "hw-caption" }, "JR-16: 4 spine, 4 aggregation in two blocks, 8 ToR. One link per connected pair."), playBtn), h("div", { class: "hw-side" }, debateBox("Which faults did people find first, and which took longest?"), prompts))
+    h("div", { class: "hw-grid" }, h("div", { class: "hw-map" }, diagram, h("p", { class: "hw-caption" }, "JR-16: 4 spine, 4 aggregation in two blocks, 8 ToR. One link per connected pair."), controls), h("div", { class: "hw-side" }, debateBox("What were the five faults in the JR-16 fabric?", faultsAnswer(), "The answer"), prompts))
   );
   return { show() {} };
 }
